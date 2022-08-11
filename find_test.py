@@ -186,6 +186,7 @@ def main_5(args):
         print(f"File ({idx}) size == {sz/(1024**2):.2} Mb , {sz/(1024):.2} Kb , {sz} bytes.")
         print()
     #)
+    
     exit()
     
     size_iter = map( os.path.getsize , filter(os.path.isfile , all_files) )
@@ -206,27 +207,6 @@ if __name__ == "__main__":
     # TODO(armagan): If multiple directories has a common prefix,
     # use the path with the maximum common prefix for GNU find, 
     # discard others. (Use *parent folders when present.)
-    
-    dirs = [ "/media/genel/SAMSUNG/NOT SAMS/Personal/" \
-        , "/media/genel/SAMSUNG/NOT SAMS/Aile fotolar, videolar/" \
-        , "/media/genel/SAMSUNG/NOT SAMS/Movies-Series/" \
-        , "/media/genel/SAMSUNG/NOT SAMS/ALL BOOKS-PAPERS/" \
-        , "/media/genel/SAMSUNG/NOT SAMS/ESSENTIAL BACKUP/" \
-        , "/media/genel/SAMSUNG/NOT SAMS/BACKUP-HP-2022-05-06/" ]
-    #
-    args = {"dirs": dirs}
-    
-    # main_2(args)
-    # main_3(dict())
-    
-    # main_4(dict())
-    
-    dirs_5 = dirs
-    dirs_5.extend( ["/media/genel/SAMSUNG/NOT SAMS/Anime-Cartoon-Manga/"] )
-    
-    #args_5 = {"dirs": dirs_5}
-    #main_5(args_5)
-    ##############################
     
     args_6 = {"dirs": list(DIRS_19)}
     main_5(args_6)

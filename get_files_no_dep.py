@@ -3,47 +3,62 @@ from typing import List
 
 import temporary_dir_data as Tdata
 
+
 DIRS_19 = Tdata.DIRS_19[:]
 
+
 def get_fpaths_recursively(PATH: str):
+#(
     rec_files: list = []
     # TODO(armaganslmn): ??? Error handling.
     #ap = os.path.abspath(PATH)
     
     ap = PATH
     if os.path.isfile(ap):
+    #(
         rec_files.append(ap)
         return rec_files
-    #
+    #)
     
     elif os.path.isdir(ap):
+    #(
         for root, dirs, files in os.walk(ap):
+        #(
             for name in files:
+            #(
                 p = os.path.join(root, name)
-                rec_files.append(p) #os.path.abspath(p))
-            #
-        #
+                rec_files.append(p) #os.path.abspath(p)
+            #)
+        #)
+    #)
     
     else: # Link or something else. Ignore them.
+    #(
         pass
-    #
+    #)
+    
     return rec_files
-#
+#)
 
 
 def get_fpaths_from_path_iter(paths_iter: List[str]):
+#(
     if type(paths_iter) != list:
         raise Exception("A list of str paths must be given.")
     
     file_paths: list = []
     unq_paths = set(paths_iter)
+    
     # TODO(armaganslmn): Handle if input is file.
     # TODO(armaganslmn): ??? Error handling.
+    
     for path in unq_paths:
+    #(
         file_paths.extend( get_fpaths_recursively(path) )
-    #
+    #)
+    
     return file_paths
-#
+#)
 
 
 def main_1(args):
