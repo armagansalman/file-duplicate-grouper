@@ -20,8 +20,10 @@ from typing import List as t_List
 
 import temporary_dir_data as Tdata
 
-DIRS_19 = Tdata.DIRS_19[:]
 
+DIRS = Tdata.DIRS
+DIRS_19 = Tdata.DIRS_19[:]
+DIRS_20: tuple = DIRS["dirs_20"]
 
 
 @dataclass
@@ -202,12 +204,43 @@ def main_5(args):
 #)
 
 
+def main_6(args):
+#(
+    dirs = args["dirs"]
+    
+    gnu_find_path = "./bin/findutils/gnu_find.elf"
+    
+    files: bytes = get_files_recursive_multi_dir(dirs, gnu_find_path)
+    
+    files_str: str = files.decode("utf-8")
+    
+    all_files = files_str.split('\n')[:-1] # Last element is EOF. Discard it.
+    
+    print(f"Total non-symbolic file count == {len(all_files)}")
+    
+    
+    for idx, f in enumerate(all_files):
+    #(
+        print(f"File ({idx}) path == {f}")
+        
+        sz = os.path.getsize(f)
+        print(f"File ({idx}) size == {sz/(1024**2):.2} Mb , {sz/(1024):.2} Kb , {sz} bytes.")
+        print()
+    #)
+    
+    exit()
+#)
+
+
 if __name__ == "__main__":
 #(
     # TODO(armagan): If multiple directories has a common prefix,
     # use the path with the maximum common prefix for GNU find, 
     # discard others. (Use *parent folders when present.)
     
-    args_6 = {"dirs": list(DIRS_19)}
-    main_5(args_6)
+    #args_6 = {"dirs": list(DIRS_19)}
+    #main_5(args_6)
+    
+    args_7 = {"dirs": list(DIRS_20)}
+    main_6(args_7)
 #)

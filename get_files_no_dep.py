@@ -4,7 +4,9 @@ from typing import List
 import temporary_dir_data as Tdata
 
 
+DIRS = Tdata.DIRS
 DIRS_19 = Tdata.DIRS_19[:]
+DIRS_20: tuple = DIRS["dirs_20"]
 
 
 def get_fpaths_recursively(PATH: str):
@@ -132,6 +134,26 @@ def main_3(args):
 #)
 
 
+def main_4(args):
+#(
+    dirs = args["dirs"]
+    
+    fpaths = get_fpaths_from_path_iter(dirs)
+    
+    print(f"Total non-symbolic file count == {len(fpaths)}")
+    
+    for idx, f in enumerate(fpaths):
+    #(
+        print(f"File ({idx}) path == {f}")
+        
+        sz = os.path.getsize(f)
+        print(f"File ({idx}) size == {sz/(1024**2):.2} Mb , {sz/(1024):.2} Kb , {sz} bytes.")
+        print()
+    #)
+    exit()
+#)
+
+
 if __name__ == "__main__":
 #(
     #args_1: dict = dict()
@@ -140,8 +162,11 @@ if __name__ == "__main__":
     #args_2: dict = dict()
     #main_2(args_2)
     
-    args_3: dict = dict()
-    main_3(args_3)
+    #args_3: dict = dict()
+    #main_3(args_3)
+    
+    args_4: dict = {"dirs": list(DIRS_20)}
+    main_4(args_4)
     
 #)
 
