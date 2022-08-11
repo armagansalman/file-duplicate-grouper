@@ -1,6 +1,9 @@
 import os
 from typing import List
 
+import temporary_dir_data as Tdata
+
+DIRS_19 = Tdata.DIRS_19[:]
 
 def get_fpaths_recursively(PATH: str):
     rec_files: list = []
@@ -94,14 +97,36 @@ def main_2(args):
 #)
 
 
+def main_3(args):
+#(
+    dirs = list(DIRS_19[:])
+    
+    fpaths = get_fpaths_from_path_iter(dirs)
+    
+    print(f"Total non-symbolic file count == {len(fpaths)}")
+    
+    for idx, f in enumerate(fpaths):
+    #(
+        print(f"File ({idx}) path == {f}")
+        
+        sz = os.path.getsize(f)
+        print(f"File ({idx}) size == {sz/(1024**2):.2} Mb , {sz/(1024):.2} Kb , {sz} bytes.")
+        print()
+    #)
+    exit()
+#)
+
+
 if __name__ == "__main__":
 #(
     #args_1: dict = dict()
     #main_1(args_1)
     
-    args_2: dict = dict()
-    main_2(args_2)
+    #args_2: dict = dict()
+    #main_2(args_2)
     
+    args_3: dict = dict()
+    main_3(args_3)
     
 #)
 

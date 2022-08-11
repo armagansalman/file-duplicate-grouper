@@ -18,6 +18,12 @@ from dataclasses import dataclass
 from typing import List as t_List
 
 
+import temporary_dir_data as Tdata
+
+DIRS_19 = Tdata.DIRS_19[:]
+
+
+
 @dataclass
 class DirData:
 #(
@@ -218,6 +224,10 @@ if __name__ == "__main__":
     dirs_5 = dirs
     dirs_5.extend( ["/media/genel/SAMSUNG/NOT SAMS/Anime-Cartoon-Manga/"] )
     
-    args_5 = {"dirs": dirs_5}
-    main_5(args_5)
+    #args_5 = {"dirs": dirs_5}
+    #main_5(args_5)
+    ##############################
+    
+    args_6 = {"dirs": list(DIRS_19)}
+    main_5(args_6)
 #)
