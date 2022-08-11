@@ -1,4 +1,5 @@
 - TODO(armagan): Learn Markdown
+- TODO(armagan): ???mypy can't check element types of lists???
 
 - NOTE: Every type name starts with "t_" characters. First letter after t_
 is always capitalized. Example: t_List, t_Int, t_Set, t_Tuple ...
@@ -10,22 +11,22 @@ its parents are also in the iterable. For example: discard
 "/home/videos" and "/home/music" paths if "/home" path is in the iterable.
 
     Function Signature (in Python syntax):
-        t_Str = str
-        t_Path = t_Str
-        t_PathList = t_List[t_Path]
+        t_Iter = Iterable
+        t_Path = A USER DEFINED TYPE
+        t_PathIter = t_Iter[t_Path]
         
-        discard_redundants(DIRS: t_PathList) -> t_PathList
+        discard_redundants(DIRS: t_PathIter) -> t_PathIter:
 
 
 2) Given an iterable of directory paths or file paths, find all file paths
 recursively. Return found and given file paths as an iterable.
 
     Function Signature (in Python syntax):
-        t_Str = str
-        t_Path = t_Str
-        t_PathList = t_List[t_Path]
+        t_Iter = Iterable
+        t_Path = A USER DEFINED TYPE
+        t_PathIter = t_Iter[t_Path]
         
-        find_files_recursive(PATHS: t_PathList) -> t_PathList
+        find_files_recursive(PATHS: t_PathIter) -> t_PathIter:
 
 
 3) Any input or output path of mdl_Traverser can be relative or absolute.

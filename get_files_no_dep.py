@@ -1,83 +1,40 @@
 import os
 from typing import List
 
-import temporary_dir_data as Tdata
+from common_types import *
+from user_types import *
 
+import path_functions as PFuncs
+import temporary_dir_data as Tdata
+import mdl_traverser as Seeker
 
 DIRS = Tdata.DIRS
 DIRS_19 = Tdata.DIRS_19[:]
 DIRS_20: tuple = DIRS["dirs_20"]
 
 
-def get_fpaths_recursively(PATH: str):
-#(
-    rec_files: list = []
-    # TODO(armaganslmn): ??? Error handling.
-    #ap = os.path.abspath(PATH)
-    
-    ap = PATH
-    if os.path.isfile(ap):
-    #(
-        rec_files.append(ap)
-        return rec_files
-    #)
-    
-    elif os.path.isdir(ap):
-    #(
-        for root, dirs, files in os.walk(ap):
-        #(
-            for name in files:
-            #(
-                p = os.path.join(root, name)
-                rec_files.append(p) #os.path.abspath(p)
-            #)
-        #)
-    #)
-    
-    else: # Link or something else. Ignore them.
-    #(
-        pass
-    #)
-    
-    return rec_files
-#)
-
-
-def get_fpaths_from_path_iter(paths_iter: List[str]):
-#(
-    if type(paths_iter) != list:
-        raise Exception("A list of str paths must be given.")
-    
-    file_paths: list = []
-    unq_paths = set(paths_iter)
-    
-    # TODO(armaganslmn): Handle if input is file.
-    # TODO(armaganslmn): ??? Error handling.
-    
-    for path in unq_paths:
-    #(
-        file_paths.extend( get_fpaths_recursively(path) )
-    #)
-    
-    return file_paths
-#)
-
+get_fpaths_from_path_iter = PFuncs.get_fpaths_from_path_iter
 
 def main_1(args):
 #(
-    dirs = [ "/home/genel/Desktop/TEMP/" \
-            , "/home/genel/Videos/"]
+    dirs: t_List[t_Path] = [ PathData("/home/genel/Desktop/TEMP/") \
+            , PathData("/home/genel/Videos/") ]
     #
+    x = PathData("abc")
     
-    fpaths = get_fpaths_from_path_iter(dirs)
+    print(type(dirs[0]))
     
-    print(f"Total non-symbolic file count == {len(fpaths)}")
+    #fdatas = list(get_fpaths_from_path_iter(dirs))
+    fdatas = list(Seeker.find_files_recursive(dirs))
     
-    for idx, f in enumerate(fpaths):
+    print(f"Total non-symbolic file count == {len(fdatas)}")
+    
+    for idx, data in enumerate(fdatas):
     #(
-        print(f"File ({idx}) path == {f}")
+        pth = data.path_str
+        print(f"File ({idx}) path == {pth}")
         
-        sz = os.path.getsize(f)
+        sz = os.path.getsize(pth)
         print(f"File ({idx}) size == {sz/(1024**2):.2} Mb , {sz/(1024):.2} Kb , {sz} bytes.")
         print()
     #)
@@ -156,8 +113,8 @@ def main_4(args):
 
 if __name__ == "__main__":
 #(
-    #args_1: dict = dict()
-    #main_1(args_1)
+    args_1: dict = dict()
+    main_1(args_1)
     
     #args_2: dict = dict()
     #main_2(args_2)
@@ -165,8 +122,8 @@ if __name__ == "__main__":
     #args_3: dict = dict()
     #main_3(args_3)
     
-    args_4: dict = {"dirs": list(DIRS_20)}
-    main_4(args_4)
+    #args_4: dict = {"dirs": list(DIRS_20)}
+    #main_4(args_4)
     
 #)
 
