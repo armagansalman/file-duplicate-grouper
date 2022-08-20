@@ -3,11 +3,37 @@ import os
 from common_types import *
 from entity_user_types import *
 
+import path_functions as PFuncs
 
-def get_fpaths_recursively(ref: t_EntityRef, get_path_from_entity: t_FnGetPath):
+from temporary_dir_data import DIRS
+
+
+def get_fpaths_recursively(data_bank: t_UserDataBank, \
+                            ref: t_EntityRef, \
+                            get_path_from_entity: t_FnGetEntityPath):
 #(
-    path = get_path_from_entity(ref)
-    print(path)
+    path = get_path_from_entity(data_bank, ref)
+    
+    return PFuncs.get_fpaths_recursively(path)
+#)
+
+
+def get_fpaths_from_path_iter(data_bank: t_UserDataBank, \
+                                ref_iter: t_RefIter, \
+                                get_path_from_entity: t_FnGetEntityPath):
+#(
+    refs_to_paths = []
+    
+    for ref in ref_iter:
+    #(
+        found_paths = get_fpaths_recursively(data_bank, ref, get_path_from_entity)
+        
+        refs_to_paths.append( (ref, found_paths) )
+        
+        #TODO(armagan): ???Use yield instead of return???
+    #)
+    
+    return refs_to_paths
 #)
 
 
@@ -29,7 +55,106 @@ def main_1(args):
 #)
 
 
+def main_2(args):
+#(
+    data = ["./", \
+            "/home/genel/Videos/", \
+            "/home/genel/Music/" ]
+    #
+    
+    def fn_get_path(ref: t_EntityRef):
+    #(
+        return data[ref]
+    #)
+    
+    
+    refs = [idx for idx in range(len(data))]
+    
+    rec_paths = get_fpaths_from_path_iter(refs, fn_get_path)
+    
+    for elm in rec_paths:
+    #(
+        print("-------------")
+        print(f"Ref:{elm[0]}")
+        print("Paths:")
+        for p in elm[1]:
+        #(
+            print(p)
+        #)
+    #)
+#)
+
+
+
+def print_files_and_sizes(args):
+#(
+    data = args["dirs"]
+    
+    def fn_get_path(data_bank: t_UserDataBank, \
+                    ref: t_EntityRef):
+    #(
+        return data_bank[ref]
+    #)
+    
+    
+    def usr_get_entity_size(data_bank: t_UserDataBank, \
+                            ref: t_EntityRef) -> t_EntitySize:
+    #(
+        path = data_bank # data_bank is the path string for main_3.
+        return os.path.getsize(path) #TODO(armagan): Error handling.
+    #)
+    
+    data_bank = data
+    refs = [idx for idx in range(len(data))]
+    
+    recursive_paths = get_fpaths_from_path_iter(data_bank, refs, fn_get_path)
+    
+    idx = 0
+    
+    for elm in recursive_paths:
+    #(
+        print("-------------")
+        print(f"Ref:{elm[0]}")
+        print("Paths:")
+        for p in elm[1]: # each p is a path.
+        #(
+            print(f"File ({idx}) path == {p}")
+            
+            sz = usr_get_entity_size(p, -1) # -1 because ref is 
+            # unimportant for this case.
+            
+            print(f"File ({idx}) size == {sz/(1024**2):.2} Mb , {sz/(1024):.2} Kb , {sz} bytes.")
+            print()
+            idx += 1
+        #)
+    #)
+#)
+
+
+def main_3(args):
+#(
+    dirs = ["./", \
+            "/home/genel/Videos/", \
+            "/home/genel/Music/" ]
+    #
+    print_files_and_sizes( {"dirs": dirs} )
+#)
+
+
+def main_4(args):
+#(
+    print_files_and_sizes( {"dirs": DIRS["dirs_20"]} ) # external storage dirs.
+#)
+
+
 if __name__ == "__main__":
 #(
-    main_1(dict())
+    #main_1(dict())
+    
+    #main_2(dict())
+    
+    #main_3(dict())
+    
+    main_4(dict())
+    
 #)
