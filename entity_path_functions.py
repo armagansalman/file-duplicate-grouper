@@ -8,25 +8,23 @@ import path_functions as PFuncs
 from temporary_dir_data import DIRS
 
 
-def get_fpaths_recursively(data_bank: t_UserDataBank, \
-                            ref: t_EntityRef, \
+def get_fpaths_recursively(ref: t_EntityRef, \
                             get_path_from_entity: t_FnGetEntityPath):
 #(
-    path = get_path_from_entity(data_bank, ref)
+    path = get_path_from_entity(ref)
     
     return PFuncs.get_fpaths_recursively(path)
 #)
 
 
-def get_fpaths_from_path_iter(data_bank: t_UserDataBank, \
-                                ref_iter: t_RefIter, \
+def get_fpaths_from_path_iter(ref_iter: t_RefIter, \
                                 get_path_from_entity: t_FnGetEntityPath):
 #(
     refs_to_paths = []
     
     for ref in ref_iter:
     #(
-        found_paths = get_fpaths_recursively(data_bank, ref, get_path_from_entity)
+        found_paths = get_fpaths_recursively(ref, get_path_from_entity)
         
         refs_to_paths.append( (ref, found_paths) )
         
@@ -90,42 +88,59 @@ def print_files_and_sizes(args):
 #(
     data = args["dirs"]
     
-    def fn_get_path(data_bank: t_UserDataBank, \
-                    ref: t_EntityRef):
+    def get_dir_path(ref: t_EntityRef):
     #(
-        return data_bank[ref]
+        return data[ref]
     #)
     
     
-    def usr_get_entity_size(data_bank: t_UserDataBank, \
-                            ref: t_EntityRef) -> t_EntitySize:
+    def usr_get_entity_size(ref: t_EntityRef, get_path: t_Callable) -> t_EntitySize:
     #(
-        path = data_bank # data_bank is the path string for main_3.
+        #path = data_bank # data_bank is the path string for main_3.
+        path = get_path(ref)
+        print(path)
+        print()
         return os.path.getsize(path) #TODO(armagan): Error handling.
     #)
     
     data_bank = data
     refs = [idx for idx in range(len(data))]
     
-    recursive_paths = get_fpaths_from_path_iter(data_bank, refs, fn_get_path)
+    recursive_paths = get_fpaths_from_path_iter(refs, get_dir_path)
+    
+    # TODO(armagan): Combine recursive path results. Then use it for get_recursive_path.
+    
+    found_paths = []
+    
+    for dirref, paths in recursive_paths:
+    #(
+        found_paths.extend(paths)
+    #)
+    
+    
+    def get_recursive_path(ref: t_EntityRef):
+    #(
+        return found_paths[ref]
+    #)
+    
     
     idx = 0
     
-    for elm in recursive_paths:
+    for pref, elm in enumerate(found_paths):
     #(
         print("-------------")
-        print(f"Ref:{elm[0]}")
-        print("Paths:")
-        for p in elm[1]: # each p is a path.
+        print(f"Ref:{pref}")
+        
         #(
-            print(f"File ({idx}) path == {p}")
-            
-            sz = usr_get_entity_size(p, -1) # -1 because ref is 
-            # unimportant for this case.
-            
-            print(f"File ({idx}) size == {sz/(1024**2):.2} Mb , {sz/(1024):.2} Kb , {sz} bytes.")
-            print()
-            idx += 1
+        print(f"File ({idx}) path == {elm}")
+        
+        sz = usr_get_entity_size(pref, get_recursive_path) # -1 because ref is 
+        # unimportant for this case.
+        
+        print(f"File ({idx}) size == {sz/(1024**2):.3} Mb , {sz/(1024):.3} Kb , {sz} bytes.")
+        print()
+        
+        idx += 1
         #)
     #)
 #)
@@ -135,7 +150,8 @@ def main_3(args):
 #(
     dirs = ["./", \
             "/home/genel/Videos/", \
-            "/home/genel/Music/" ]
+            "/home/genel/Music/" \
+            ,"/media/genel/Bare-Data/ALL BOOKS-PAPERS/" ]
     #
     print_files_and_sizes( {"dirs": dirs} )
 #)
@@ -153,8 +169,8 @@ if __name__ == "__main__":
     
     #main_2(dict())
     
-    #main_3(dict())
+    main_3(dict())
     
-    main_4(dict())
+    #main_4(dict())
     
 #)

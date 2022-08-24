@@ -33,3 +33,13 @@ recursively. Return found and given file paths as an iterable.
 
 4) find_files_recursive function does not call discard_redundants function.
 The user may or may not want to call discard_redundants function.
+
+
+------
+From "A Relational Model of Data for Large Shared Data Banks" by E. F. Codd
+
+R(g).r.d
+R = Relation name
+g = generation identifier (optional)
+r = role name (optional)
+d = domain name
