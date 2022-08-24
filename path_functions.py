@@ -12,7 +12,9 @@ def get_absolute_path(path):
 
 def ignore_redundant_subdirs(dirs):
     """ If a dir D_1 is a descendant of a dir D_2, don't include D_1 as
-        it will be included with recursive search of D_2. """
+        it will be included with recursive search of D_2. 
+        WARNING: If a given path is a file, it will also be ignored.
+    """
 #(
     abs_paths = list(map(get_absolute_path, filter(os.path.isdir, dirs)))
     
@@ -111,7 +113,7 @@ def test_ignore_redundant_subdirs_1():
             ,"/home/genel/Documents/Programs/" \
             ,"/home/genel/Documents/Programs/eclipse/" ]
     #
-    # os.path.abspath removes leading / from path. Important for 
+    # WARNING: os.path.abspath removes leading / from path. Important for 
     # path string comparisons.
     essential_dirs = ["/home/genel/Desktop", "/home/genel/Documents"]
     
