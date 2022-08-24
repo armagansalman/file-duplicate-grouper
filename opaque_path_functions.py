@@ -2,6 +2,7 @@ import os
 
 from common_types import *
 from opaque_user_types import *
+import opaque_user_types as OT
 
 import path_functions as PFuncs
 
@@ -20,7 +21,7 @@ def is_file(path: t_Str):
 #)
 
 
-def get_file_size(path: t_Str):
+def get_local_file_size(path: t_Str):
 #(
     return os.path.getsize(path)
 #)
@@ -81,6 +82,20 @@ def combine_file_paths_from_tuples(obj_pathlist_tuples):
 def filter_for_files(paths: t_Iter[t_Str]):
 #(
     return filter(os.path.isfile, paths)
+#)
+
+
+def collect_all_file_paths(obj_iter: t_ObjIter, \
+                            get_dirpath_from_obj: t_FnGetObjPath):
+#(
+    dir_filelist_tuples = get_fpaths_from_path_iter(obj_iter, get_dirpath_from_obj)
+    
+    # OpPthFn.
+    potential_fpaths = combine_file_paths_from_tuples(dir_filelist_tuples)
+    
+    fpaths = filter(os.path.isfile, potential_fpaths)
+    
+    return fpaths
 #)
 
 

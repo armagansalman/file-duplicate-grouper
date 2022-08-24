@@ -1,7 +1,12 @@
 from common_types import *
+import common_types as CT
 from opaque_user_types import *
+import opaque_user_types as OT
 
 import opaque_path_functions as OpPthFn
+
+import util as UTIL
+
 
 def get_multi_obj_sizes(obj_iter: t_ObjIter, get_obj_size: t_FnGetObjSize):
 #(
@@ -22,20 +27,15 @@ def get_fsizes_from_given_dirs(obj_iter: t_ObjIter, get_path_from_obj: t_FnGetOb
 #(
     #selected_dirs = OpPthFn.ignore_redundant_subdirs(obj_iter, get_path_from_obj)
     
-    selected_dirs = obj_iter
-    dir_filelist_tuples = OpPthFn.get_fpaths_from_path_iter(selected_dirs, get_path_from_obj)
+    fpaths = OpPthFn.collect_all_file_paths(obj_iter, get_path_from_obj)
     
-    potential_fpaths = OpPthFn.combine_file_paths_from_tuples(dir_filelist_tuples)
-    
-    fpaths = filter(OpPthFn.is_file, potential_fpaths)
-    
-    return get_multi_obj_sizes(fpaths, OpPthFn.get_file_size)
+    return get_multi_obj_sizes(fpaths, OpPthFn.get_local_file_size)
 #)
 
 
 def group_objs_by_fsize(obj_iter: t_ObjIter, get_obj_size: t_FnGetObjSize):
 #(
-    size_to_objs = dict()
+    size_to_objs: CT.t_Dict[OT.t_ObjSize, CT.t_Set[OT.t_OpaqueObj]] = dict()
     
     for obj in obj_iter:
     #(
@@ -61,8 +61,36 @@ def group_objs_by_fsize(obj_iter: t_ObjIter, get_obj_size: t_FnGetObjSize):
 #)
 
 
-def 
+def get_local_file_bytes(obj: OT.t_OpaqueObj, get_file_path: OT.t_FnGetObjPath, \
+            start_idx: OT.t_StartIdx, end_idx: OT.t_EndIdx):
+#(
+    path_str = get_file_path(obj)
+    
+    read_bytes = UTIL.read_local_file_bytes(path_str, start_idx, end_idx) 
+    # Includes end_idx byte.
+    
+    return read_bytes # Returns b'' on error.
+#)
 
+
+def get_bytes(obj: OT.t_OpaqueObj, get_obj_bytes: OT.t_FnGetObjBytes, \
+            start_idx: OT.t_StartIdx, end_idx: OT.t_EndIdx):
+#(
+    read_bytes = get_obj_bytes(obj, start_idx, end_idx) # Includes end_idx byte.
+    
+    return read_bytes
+#)
+
+
+def get_multi_obj_bytes(obj_iter, get_obj_bytes: OT.t_FnGetObjBytes, \
+                        start_idx: OT.t_StartIdx, end_idx: OT.t_EndIdx):
+#(
+    # TODO(armagan): Make this a generator for memory.
+    for obj in obj_iter:
+    #(
+        yield ( obj, get_bytes(obj, get_obj_bytes, start_idx, end_idx) )
+    #)
+#)
 
 
 def print_path_size_iter(paths_n_sizes):
@@ -147,7 +175,47 @@ def main_4(args):
     #print_path_size_iter(path_n_sizes)
 #)
 
-#
+
+def main_5(args):
+#(
+    dirs = ["/home/genel/Downloads/", "/home/genel/Documents/"]
+    
+    fpaths = OpPthFn.collect_all_file_paths(dirs, lambda x: x)
+    
+    GAP = 1024*64
+    
+    start_idx = 0
+    end_idx = GAP + start_idx - 1
+    
+    print(f"Gap:{GAP}, start_idx:{start_idx}, end_idx:{end_idx}")
+    
+    def read_byte_from_path(path, start, end):
+    #(
+        return UTIL.read_local_file_bytes(path, start, end)
+    #)
+    
+    obj_bytes_coll = get_multi_obj_bytes(fpaths, read_byte_from_path, start_idx, end_idx)
+    
+    for idx, elm in enumerate(obj_bytes_coll):
+    #(
+        obj, data = elm
+        
+        print(f"----------- {idx}")
+        print(obj)
+        
+        sz = len(data)
+        
+        print_len = 10
+        
+        if sz < print_len:
+            print(sz)
+        else:
+            print(data[-print_len:])
+        #
+        print()
+    #)
+#)
+
 
 if __name__ == "__main__":
 #(
@@ -157,7 +225,9 @@ if __name__ == "__main__":
     
     #main_3(dict())
     
-    main_4(dict())
+    #main_4(dict())
+    
+    main_5(dict())
     
 #)
 
