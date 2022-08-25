@@ -4,9 +4,15 @@ from common_types import *
 from user_types import *
 
 
-def get_absolute_path(path):
+def get_absolute_path(path: t_Str):
 #(
     return os.path.abspath(path)
+#)
+
+
+def is_file(path: t_Str):
+#(
+    return os.path.isfile(path)
 #)
 
 

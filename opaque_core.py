@@ -1,96 +1,116 @@
-from common_types import *
 import common_types as CT
-from opaque_user_types import *
 import opaque_user_types as OT
 
-import opaque_path_functions as OpPthFn
-
+import opaque_helper_functions as OpHlp
 import util as UTIL
 
 
-def get_multi_obj_sizes(obj_iter: t_ObjIter, get_obj_size: t_FnGetObjSize):
+def get_multi_hashable_data(obj_iter: OT.t_ObjIter, getter: OT.t_FnGetHashable \
+                            , options: OT.t_OpaqueObj) \
+                            -> CT.t_HashableIter:
+    """ Creates 2-tuples of object and its relevant hashable data.  """
 #(
-    obj_sizes = []
-    
-    for obj in obj_iter:
-    #(
-        sz = get_obj_size(obj)
-        
-        obj_sizes.append( (obj, sz) )
-    #)
-    
-    return obj_sizes
+    return map( lambda x: (x, getter(x, options)) , obj_iter )
 #)
 
 
-def get_fsizes_from_given_dirs(obj_iter: t_ObjIter, get_path_from_obj: t_FnGetObjPath):
+def group_objects(obj_iter: OT.t_ObjIter, get_obj_hashable: OT.t_FnGetHashable, \
+                    options:CT.t_Any):
 #(
-    #selected_dirs = OpPthFn.ignore_redundant_subdirs(obj_iter, get_path_from_obj)
-    
-    fpaths = OpPthFn.collect_all_file_paths(obj_iter, get_path_from_obj)
-    
-    return get_multi_obj_sizes(fpaths, OpPthFn.get_local_file_size)
-#)
-
-
-def group_objs_by_fsize(obj_iter: t_ObjIter, get_obj_size: t_FnGetObjSize):
-#(
-    size_to_objs: CT.t_Dict[OT.t_ObjSize, CT.t_Set[OT.t_OpaqueObj]] = dict()
+    hsh_to_objs: CT.t_Dict[CT.t_Hashable, CT.t_Set[OT.t_OpaqueObj]] = dict()
     
     for obj in obj_iter:
     #(
-        sz = get_obj_size(obj)
+        hsh = get_obj_hashable(obj, options)
         
-        same_sized = size_to_objs.get(sz, None)
+        same_hash_group = hsh_to_objs.get(hsh, None)
         
-        if same_sized == None:
+        if same_hash_group == None:
         #(
-            new_size_set = set()
-            new_size_set.add(obj)
+            new_hashable_set = set()
+            new_hashable_set.add(obj)
             
-            size_to_objs[sz] = new_size_set
+            hsh_to_objs[hsh] = new_hashable_set
         #)
         else:
         #(
-            same_sized.add(obj)
+            same_hash_group.add(obj)
         #)
     #)
     
-    return size_to_objs
+    return hsh_to_objs
     
 #)
 
 
-def get_local_file_bytes(obj: OT.t_OpaqueObj, get_file_path: OT.t_FnGetObjPath, \
-            start_idx: OT.t_StartIdx, end_idx: OT.t_EndIdx):
+def group_objs_by_fsize(obj_iter: OT.t_ObjIter, get_obj_size: OT.t_FnGetHashable):
 #(
-    path_str = get_file_path(obj)
-    
-    read_bytes = UTIL.read_local_file_bytes(path_str, start_idx, end_idx) 
-    # Includes end_idx byte.
-    
-    return read_bytes # Returns b'' on error.
+    return group_objects(obj_iter, get_obj_size, None)
 #)
 
 
-def get_bytes(obj: OT.t_OpaqueObj, get_obj_bytes: OT.t_FnGetObjBytes, \
-            start_idx: OT.t_StartIdx, end_idx: OT.t_EndIdx):
-#(
-    read_bytes = get_obj_bytes(obj, start_idx, end_idx) # Includes end_idx byte.
-    
-    return read_bytes
-#)
-
-
-def get_multi_obj_bytes(obj_iter, get_obj_bytes: OT.t_FnGetObjBytes, \
+def get_multi_obj_bytes(obj_iter: OT.t_ObjIter, get_obj_bytes: OT.t_FnGetObjBytes, \
                         start_idx: OT.t_StartIdx, end_idx: OT.t_EndIdx):
 #(
-    # TODO(armagan): Make this a generator for memory.
+    # TODO(armagan): Make this a generator for memory efficiency.
     for obj in obj_iter:
     #(
-        yield ( obj, get_bytes(obj, get_obj_bytes, start_idx, end_idx) )
+        received_bytes = get_obj_bytes(obj, start_idx, end_idx)
+        yield ( obj, received_bytes )
     #)
 #)
+
+
+def ignore_unique_groups(obj_iter: OT.t_ObjIter, get_key: OT.t_FnGetKey, \
+                    get_group: OT.t_FnGetValue):
+#(
+    DUPLICATE_THRESHOLD = 2
+    potential_dups: CT.t_List[CT.t_List] = [] # [[key1,group1], [key2,group2], ...]
+    
+    for obj in obj_iter:
+    #(
+        key, group = get_key(obj), get_group(obj)
+        
+        sz = 0
+        try:
+        #(
+            sz = len(group)
+        #)
+        except: # Group object might not have a len method.
+        #(
+            sz = len(list(group))
+        #)
+        
+        if sz < DUPLICATE_THRESHOLD: 
+        # A duplicate group always have at least DUPLICATE_THRESHOLD elements.
+        #(
+            continue # Ignore this key, group pair.
+        #)
+        else: # This group holds potential duplicates.
+        #(
+            potential_dups.append([key, group])
+        #)
+    #)
+    
+    return potential_dups
+#)
+
+
+def ignore_zero_len(obj_iter: OT.t_ObjIter, get_size: OT.t_FnGetObjSize):
+#(
+    for obj in obj_iter:
+    #(
+        sz = get_size(obj)
+        if sz < 1:
+            continue
+        else:
+            yield obj
+    #)
+#)
+
+
+# TODO(armagan): Make a fn separate_unq_dups that returns unique key-group pairs
+# and potentially duplicate key-group pairs in a named tuple (collections.namedtuple).
 
 
 def print_path_size_iter(paths_n_sizes):
@@ -180,9 +200,9 @@ def main_5(args):
 #(
     dirs = ["/home/genel/Downloads/", "/home/genel/Documents/"]
     
-    fpaths = OpPthFn.collect_all_file_paths(dirs, lambda x: x)
+    fpaths = OpHlp.collect_all_file_paths(dirs, lambda x: x)
     
-    GAP = 1024*64
+    GAP = 1024 * 1
     
     start_idx = 0
     end_idx = GAP + start_idx - 1
@@ -217,6 +237,192 @@ def main_5(args):
 #)
 
 
+def main_6(args):
+#(
+    dirs = ["/home/genel/Downloads/", "/home/genel/Documents/"]
+    
+    fpaths = OpHlp.collect_all_file_paths(dirs, lambda x: x)
+    
+    size_groups = group_objs_by_fsize(fpaths, UTIL.get_local_file_size)
+    
+    print(f"Total key count: {len(size_groups)}")
+    
+    dict_str = UTIL.pretty_dict_str(size_groups, "File len bytes to paths")
+    
+    print(dict_str)
+    
+    uniques = ignore_uniques(size_groups.items(), lambda x: x[0], lambda x: x[1])
+    
+    lol_str = UTIL.list_of_two_tuples_str(uniques, "File size bytes, File paths")
+    
+    print(lol_str)
+    
+    exit()
+    #######
+    
+    GAP = 1024 * 1
+    
+    start_idx = 0
+    end_idx = GAP + start_idx - 1
+    
+    print(f"Gap:{GAP}, start_idx:{start_idx}, end_idx:{end_idx}")
+    
+    def read_byte_from_path(path, start, end):
+    #(
+        return UTIL.read_local_file_bytes(path, start, end)
+    #)
+#)
+
+
+def print_uniques_by_size(args):
+#(
+    #dirs = ["/home/genel/Downloads/", "/home/genel/Documents/"]
+    
+    dirs = args["dirs"]
+    
+    fpaths = OpHlp.collect_all_file_paths(dirs, lambda x: x)
+    
+    size_groups = group_objs_by_fsize(fpaths, UTIL.get_local_file_size)
+    
+    print(f"Total key count: {len(size_groups)}")
+    
+    dict_str = UTIL.pretty_dict_str(size_groups, "File len bytes to paths")
+    
+    print(dict_str)
+    
+    uniques = ignore_unique_groups(size_groups.items(), lambda x: x[0], lambda x: x[1])
+    
+    lot_str = UTIL.list_of_two_tuples_str(uniques, "File size bytes, File paths")
+    
+    print(lot_str)
+#)
+
+
+def main_7(args):
+#(
+    dirs = ["/home/genel/", "/home/genel/Downloads/"]
+    
+    dct = {"dirs": dirs}
+    
+    print_uniques_by_size(dct)
+#)
+
+
+def main_8(args):
+#(
+    dirs = ["/home/genel/Downloads/", "/home/genel/Documents/"]
+    
+    fpaths = OpHlp.collect_all_file_paths(dirs, lambda x: x)
+    
+    PATHS = list(fpaths)
+    
+    def size_getter(obj, options):
+    #(
+        return UTIL.get_local_file_size(obj)
+    #)
+    
+    objs_n_sizes = get_multi_hashable_data(fpaths, size_getter, None)
+    
+    tmp = map(lambda x: [x[0], [x[1]]], objs_n_sizes)
+    
+    string = UTIL.list_of_two_tuples_str(tmp, "Objects and Sizes")
+    
+    print(string)
+    
+    
+    def read_file_bytes(obj, options: CT.t_Any) -> CT.t_Bytes:
+    #(
+        start = options["start_idx"]
+        end = options["end_idx"]
+        path = obj
+        
+        return UTIL.read_local_file_bytes(path, start, end)
+    #)
+    
+    dct = {"start_idx":0, "end_idx":64}
+    obj_bytes = get_multi_hashable_data(PATHS, read_file_bytes, dct)
+    
+    tmp2 = map(lambda x: [ x[0] , UTIL.sha512_hexdigest(x[1]) ] , obj_bytes)
+    
+    for left, right in tmp2:
+    #(
+        print(f"Left: {left}")
+        print(f"Right: {right}")
+    #)
+    
+#)
+
+
+def main_9(args):
+#(
+    dirs = ["/home/genel/Downloads/", "/home/genel/Documents/"]
+    
+    fpaths = OpHlp.collect_all_file_paths(dirs, lambda x: x)
+    
+    PATHS = list(fpaths)
+    
+    size_groups = group_objects(PATHS, UTIL.get_local_file_size, None)
+    
+    dup_groups = ignore_unique_groups(size_groups.items(), \
+                                    lambda x: x[0], lambda x: x[1])
+    #
+    
+    
+    
+    pretty_str = UTIL.list_of_two_tuples_str(dup_groups, "Removed Uniques, Non-zero len")
+    
+    print(pretty_str)
+    
+    def read_bytes(obj, options):
+    #(
+        return UTIL.read_local_file_bytes(obj, options["start_idx"], options["end_idx"])
+    #)
+    
+    dct = {"start_idx":0 , "end_idx": 64}
+    obj_to_bytes = get_multi_hashable_data(PATHS, read_bytes, dct)
+    
+    obj_to_sha512digest = map(lambda x: [ x[0], UTIL.sha512_hexdigest(x[1]) ], \
+                                obj_to_bytes)
+    #
+
+    #
+    
+    
+#)
+
+
+def main_10(args):
+#(
+    dirs = ["/home/genel/"]
+    
+    fpaths = OpHlp.collect_all_file_paths(dirs, lambda x: x)
+    
+    PATHS = list(fpaths)
+    
+    def read_bytes(obj, options):
+    #(
+        return UTIL.read_local_file_bytes(obj, options["start_idx"], options["end_idx"])
+    #)
+    
+    dct = {"start_idx":0 , "end_idx": 64}
+    obj_to_bytes = get_multi_hashable_data(PATHS, read_bytes, dct)
+    
+    obj_to_sha512digest = map(lambda x: [ x[0], UTIL.sha512_hexdigest(x[1]) ], \
+                                obj_to_bytes)
+    #
+    
+    ix = 0
+    for obj, digest in obj_to_sha512digest:
+    #(
+        print(f"~~~~~~~ Index: {ix}")
+        print(f"Obj: {obj}")
+        print(f"- sha512: {digest}")
+        
+        ix += 1
+    #)
+#)
+
+
 if __name__ == "__main__":
 #(
     #main_1(dict())
@@ -227,7 +433,17 @@ if __name__ == "__main__":
     
     #main_4(dict())
     
-    main_5(dict())
+    #main_5(dict())
+    
+    #main_6(dict())
+    
+    #main_7(dict())
+    
+    #main_8(dict())
+    
+    #main_9(dict())
+    
+    main_10(dict())
     
 #)
 

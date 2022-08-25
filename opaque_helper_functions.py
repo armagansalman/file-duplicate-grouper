@@ -1,34 +1,15 @@
 import os
 
-from common_types import *
-from opaque_user_types import *
+import common_types as CT
 import opaque_user_types as OT
 
 import path_functions as PFuncs
-
 from temporary_dir_data import DIRS
+import util as UTIL
 
 
-def get_absolute_path(path: t_Str):
-#(
-    return PFuncs.get_absolute_path(path)
-#)
-
-
-def is_file(path: t_Str):
-#(
-    return os.path.isfile(path)
-#)
-
-
-def get_local_file_size(path: t_Str):
-#(
-    return os.path.getsize(path)
-#)
-
-
-def ignore_redundant_subdirs(obj_iter: t_ObjIter, \
-                                get_path_from_obj: t_FnGetObjPath):
+def ignore_redundant_subdirs(obj_iter: OT.t_ObjIter, \
+                                get_path_from_obj: OT.t_FnGetObjPath):
 #(
     paths = map(get_path_from_obj, obj_iter)
     
@@ -36,8 +17,8 @@ def ignore_redundant_subdirs(obj_iter: t_ObjIter, \
 #)
 
 
-def get_fpaths_recursively(ref: t_OpaqueObj, \
-                            get_path_from_obj: t_FnGetObjPath):
+def get_fpaths_recursively(ref:OT.t_OpaqueObj, \
+                            get_path_from_obj: OT.t_FnGetObjPath):
 #(
     path = get_path_from_obj(ref)
     
@@ -45,9 +26,9 @@ def get_fpaths_recursively(ref: t_OpaqueObj, \
 #)
 
 
-def get_fpaths_from_path_iter(obj_iter: t_ObjIter, \
-                                get_path_from_obj: t_FnGetObjPath) \
-                            -> t_Iter[t_Tuple[t_Any, t_List]]:
+def get_fpaths_from_path_iter(obj_iter: OT.t_ObjIter, \
+                                get_path_from_obj: OT.t_FnGetObjPath) \
+                            -> CT.t_Iter[CT.t_Tuple[CT.t_Any, CT.t_List]]:
 #(
     selected_dirs = ignore_redundant_subdirs(obj_iter, get_path_from_obj)
     
@@ -79,18 +60,18 @@ def combine_file_paths_from_tuples(obj_pathlist_tuples):
 #)
 
 
-def filter_for_files(paths: t_Iter[t_Str]):
+def filter_for_files(paths: CT.t_Iter[CT.t_Str]):
 #(
     return filter(os.path.isfile, paths)
 #)
 
 
-def collect_all_file_paths(obj_iter: t_ObjIter, \
-                            get_dirpath_from_obj: t_FnGetObjPath):
+def collect_all_file_paths(obj_iter: OT.t_ObjIter, \
+                            get_dirpath_from_obj: OT.t_FnGetObjPath):
 #(
     dir_filelist_tuples = get_fpaths_from_path_iter(obj_iter, get_dirpath_from_obj)
     
-    # OpPthFn.
+    # OpHlp.
     potential_fpaths = combine_file_paths_from_tuples(dir_filelist_tuples)
     
     fpaths = filter(os.path.isfile, potential_fpaths)
@@ -99,11 +80,53 @@ def collect_all_file_paths(obj_iter: t_ObjIter, \
 #)
 
 
+def get_local_file_bytes(obj: OT.t_OpaqueObj, get_file_path: OT.t_FnGetObjPath, \
+            start_idx: OT.t_StartIdx, end_idx: OT.t_EndIdx):
+#(
+    path_str = get_file_path(obj)
+    
+    read_bytes = UTIL.read_local_file_bytes(path_str, start_idx, end_idx) 
+    # Includes end_idx byte.
+    
+    return read_bytes # Returns b'' on error.
+#)
+
+
+def get_multi_obj_sizes(obj_iter: OT.t_ObjIter, get_obj_size: OT.t_FnGetObjSize):
+#(
+    
+    return map( lambda x: (x, get_obj_size(x)) , obj_iter )
+    
+    """
+    obj_sizes = []
+    
+    for obj in obj_iter:
+    #(
+        sz = get_obj_size(obj)
+        
+        obj_sizes.append( (obj, sz) )
+    #)
+    
+    return obj_sizes
+    """
+#)
+
+
+def get_fsizes_from_given_dirs(obj_iter: OT.t_ObjIter, get_path_from_obj: OT.t_FnGetObjPath):
+#(
+    #selected_dirs = OpHlp.ignore_redundant_subdirs(obj_iter, get_path_from_obj)
+    
+    fpaths = collect_all_file_paths(obj_iter, get_path_from_obj)
+    
+    return get_multi_obj_sizes(fpaths, UTIL.get_local_file_size)
+#)
+
+
 def main_1(args):
 #(
     data = ["asd", "acv", "xzd", "efr"]
     
-    def fn_get_path(obj: t_OpaqueObj):
+    def fn_get_path(obj:OT.t_OpaqueObj):
     #(
         return obj
     #)
@@ -121,7 +144,7 @@ def main_2(args):
             "/home/genel/Music/" ]
     #
     
-    def fn_get_path(obj: t_OpaqueObj):
+    def fn_get_path(obj:OT.t_OpaqueObj):
     #(
         return obj
     #)
@@ -149,13 +172,13 @@ def print_files_and_sizes(args):
 #(
     LOCAL_DIRS = args["dirs"]
     
-    def get_dir_path(obj: t_OpaqueObj):
+    def get_dir_path(obj:OT.t_OpaqueObj):
     #(
         return obj
     #)
     
     
-    def usr_get_entity_size(obj: t_OpaqueObj) -> t_ObjSize:
+    def usr_get_entity_size(obj:OT.t_OpaqueObj) -> OT.t_ObjSize:
     #(
         path = obj
         
@@ -175,7 +198,7 @@ def print_files_and_sizes(args):
     #)
     
     
-    def get_file_path(obj: t_OpaqueObj):
+    def get_file_path(obj:OT.t_OpaqueObj):
     #(
         return obj
     #)
