@@ -128,7 +128,7 @@ def apply_grouper_funcs_dfs(obj_iter, getter_and_param_list: \
     
     obj_iter = list(obj_iter)
     
-    if len(obj_iter) < 1:
+    if len(obj_iter) < 2: # 1-element group can not contain duplicates.
         return []
     
     fn_and_param = getter_and_param_list[FN_IDX]
@@ -508,7 +508,7 @@ def filter_and_apply_groupers(obj_iter, SMALLEST_FSIZE, GROUPERS):
 #)
 
 
-def filter_and_triple_hash(obj_iter, SMALLEST_FSIZE):
+def filter_and_multiple_hash(obj_iter, SMALLEST_FSIZE, BYTE_IDX_PAIRS):
 #(
     size_grpr = OT.FnHashableParamPair(UTIL.get_local_file_size, None)
     
@@ -523,21 +523,37 @@ def filter_and_triple_hash(obj_iter, SMALLEST_FSIZE):
         return UTIL.sha512_hexdigest(data)
     #)
     
+    #BYTE = 1
+    #KB = 1024
+    #MB = 1024 * KB
+    
+    hash_grprs = []
+    for start, end in BYTE_IDX_PAIRS:
+    #(
+        pair = OT.FnHashableParamPair(hash_getter, \
+                                    {"start_offset": start , "end_offset": end})
+        #
+        hash_grprs.append(pair)
+    #)
+    
+    return filter_and_apply_groupers(obj_iter, SMALLEST_FSIZE, [size_grpr, *hash_grprs])
+#)
+
+
+
+def filter_and_triple_hash(obj_iter, SMALLEST_FSIZE):
+#(
     BYTE = 1
     KB = 1024
     MB = 1024 * KB
     
-    hash_grprs = [ 
-                  OT.FnHashableParamPair(hash_getter, \
-                                    {"start_offset": 0 , "end_offset": 512}) \
-                , OT.FnHashableParamPair(hash_getter, \
-                                    {"start_offset": 0 , "end_offset": 64 * KB}) \
-                , OT.FnHashableParamPair(hash_getter, \
-                                        {"start_offset": 0 , "end_offset": 1 * MB})
-                ]
-    #
+    byte_idx_pairs = [ 
+                        (0, 512 * BYTE) \
+                        ,(0, 64 * KB) \
+                        , (0, 1 * MB) \
+                    ]
     
-    return filter_and_apply_groupers(obj_iter, SMALLEST_FSIZE, [size_grpr, *hash_grprs])
+    return filter_and_multiple_hash(obj_iter, SMALLEST_FSIZE, byte_idx_pairs)
 #)
 
 
@@ -546,13 +562,32 @@ def main_11(args):
     #512000 byte smallest file size.
     #Groupers=size,512-hash,65536-hash 
     
-    dirs = ["/home/genel"]
+    #dirs = ["/home/genel"]
+    dirs = ["/media/genel/Bare-Data/"] # 34735 items, totalling 67,6 GiB (72.553.152.052 bytes)
+    #dirs = ["/media/genel/9A4277A5427784B3/"] # 513816 items, totalling 88,4 GiB (94.866.674.987 bytes)
     
     BYTE = 1
     KB = 1024 * BYTE
+    MB = 1024 * KB
+    
     SMALLEST_FSIZE = 512 * KB
     
-    key_group_pairs = filter_and_triple_hash(dirs, SMALLEST_FSIZE)
+    byte_idx_pairs = [ 
+                        (0, 1 * KB) \
+                        #,(0, 64 * KB) \
+                        ,(0, 1 * MB) \
+                    ]
+    #
+    
+    key_group_pairs = filter_and_multiple_hash(dirs, SMALLEST_FSIZE, byte_idx_pairs)
+    
+    jsndata = UTIL.key_group_pairs_to_json_data(key_group_pairs)
+    
+    #objects = jsndata["groups"]
+    
+    UTIL.write_json(jsndata, "json-out.json")
+    
+    exit()
     
     grp_idx = 0
     fidx = 0
@@ -625,9 +660,9 @@ if __name__ == "__main__":
     
     #main_10(dict())
     
-    #main_11(dict())
+    main_11(dict())
     
-    main_12(dict())
+    #main_12(dict())
     
 #)
 

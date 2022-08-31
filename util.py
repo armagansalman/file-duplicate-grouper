@@ -1,5 +1,6 @@
 import os
 import hashlib as HASH
+import json as JSON
 
 import common_types as CT
 
@@ -72,6 +73,7 @@ def read_local_file_bytes(file_path: CT.t_Str, start_offset: CT.t_Int, \
                         end_offset: CT.t_Int):
 #(
     # Includes bytes at start_offset and end_offset
+    
     try:
     #(
         data: bytes = b'0'
@@ -113,4 +115,41 @@ def sha512_hexdigest(data: CT.t_Bytes):
     sha512_obj.update(data)
     
     return sha512_obj.hexdigest()
+#)
+
+
+def key_group_pairs_to_json_data(pairs):
+#(
+    grp_idx = 0
+    file_idx = 0
+    
+    group_objects = []
+    for key, group in pairs:
+    #(
+        dct = {"Group idx":grp_idx}
+        element_objects = []
+        
+        for elm in group:
+        #(
+            element_objects.append( {"File idx": file_idx \
+                                    ,"Item": str(elm)} )
+            #
+            file_idx += 1
+        #)
+        dct["Item list"] = element_objects
+        
+        group_objects.append(dct)
+        
+        grp_idx += 1
+    #)
+    return {"Group list": group_objects}
+#)
+
+
+def write_json(data, fpath, mode="w"):
+#(
+    with open(fpath, mode, encoding="utf-8") as fout:
+    #(
+        JSON.dump(data, fout)
+    #)
 #)

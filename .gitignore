@@ -1,5 +1,6 @@
 temporary_dir_data.py
 
+*.json
 *.txt
 *.bak
 *.7z
