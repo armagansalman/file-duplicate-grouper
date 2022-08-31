@@ -9,6 +9,8 @@ from typing import Callable as t_Callable
 from typing import Any as t_Any
 from typing import Hashable as t_Hashable
 from typing import Optional as t_Optional
+from typing import ItemsView as t_ItemsView
+
 
 t_Str = str
 t_Int = int

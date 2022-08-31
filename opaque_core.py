@@ -15,9 +15,9 @@ def get_multi_hashable_data(obj_iter: OT.t_ObjIter, getter: OT.t_FnGetHashable \
 
 
 def group_objects(obj_iter: OT.t_ObjIter, get_obj_hashable: OT.t_FnGetHashable, \
-                    options:CT.t_Any):
+                    options:CT.t_Any) -> OT.t_HashToSetDict:
 #(
-    hsh_to_objs: CT.t_Dict[CT.t_Hashable, CT.t_Set[OT.t_OpaqueObj]] = dict()
+    hsh_to_objs: OT.t_HashToSetDict = dict()
     
     for obj in obj_iter:
     #(
@@ -113,12 +113,75 @@ def ignore_zero_len(obj_iter: OT.t_ObjIter, get_size: OT.t_FnGetObjSize):
 # and potentially duplicate key-group pairs in a named tuple (collections.namedtuple).
 
 
+def apply_grouper_funcs_dfs(obj_iter, getter_and_param_list: \
+                            CT.t_List[OT.FnHashableParamPair], FN_IDX: CT.t_Int) \
+                            :
+                            #-> CT.t_List[OT.t_KeyGroupPair]:
+#(
+    FN_LIST_LEN = len(getter_and_param_list)
+    
+    if FN_IDX >= FN_LIST_LEN:
+    #(
+        return obj_iter
+    #)
+    
+    
+    fn_and_param = getter_and_param_list[FN_IDX]
+    getter: OT.t_FnGetHashable = fn_and_param.function
+    opt_param: CT.t_Any = fn_and_param.opt_param
+    
+    mapping = group_objects(obj_iter, getter, opt_param)
+    
+    
+    if FN_IDX == FN_LIST_LEN - 1: # Last grouper was applied. Return key,group iterable.
+    #(
+        # items = key, group iterable.
+        return filter(lambda x: len(x[1]) > 1 , mapping.items()) # Len group > 1.
+    #)
+    
+    
+    # Combine key,group iterables and return.
+    NEXT_FN_IDX = FN_IDX + 1
+    #key_group_pairs: CT.t_List[OT.t_KeyGroupPair] = []
+    key_group_pairs = []
+
+    for key, group in mapping.items():
+    #(
+        sub_pairs = apply_grouper_funcs_dfs(group, getter_and_param_list, \
+                                            NEXT_FN_IDX)
+        #
+        key_group_pairs.extend(sub_pairs)
+    #)
+    
+    return key_group_pairs
+#)
+
+
+def apply_grouper_funcs(obj_iter, getter_and_param_list: \
+                        CT.t_List[OT.FnHashableParamPair]):
+#(
+    if len(getter_and_param_list) < 1: # No grouper to process.
+    #(
+        return obj_iter
+    #)
+    
+    for elm in getter_and_param_list:
+    #(
+        grouper = elm.function
+        assert (grouper != None)
+    #)
+    
+    FN_IDX = 0
+    return apply_grouper_funcs_dfs(obj_iter, getter_and_param_list, FN_IDX)
+#)
+
+
 def print_path_size_iter(paths_n_sizes):
 #(
     for ix, elm in enumerate(paths_n_sizes):
     #(
         print(f"Path ({ix}): {elm[0]}")
-        print(f"Size: {elm[1]} bytes, {elm[1]//1024} Kb, {elm[1]// (1024**2)} Mb")
+        print(f"Size: {elm[1]} bytes, {round(elm[1]/1024, 2)} Kb, {round(elm[1]/1024/1024, 2)} Mb")
         print()
     #)
 #)
@@ -423,6 +486,38 @@ def main_10(args):
 #)
 
 
+def main_11(args):
+#(
+    #512000 byte smallest file size.
+    #Groupers=size,512-hash,65536-hash 
+    
+    dirs = ["/home/genel"]
+    
+    fpaths = OpHlp.collect_all_file_paths(dirs, lambda x: x)
+    
+    PATHS = tuple(fpaths)
+    
+    SMALLEST_SIZE = 512000
+    nonsmall_files = filter(lambda elm: UTIL.get_local_file_size(elm, None) >= \
+                            SMALLEST_SIZE , PATHS)
+    #
+    
+    #size_groups = group_objects(PATHS, UTIL.get_local_file_size, None)
+    
+    
+    size_grpr = OT.FnHashableParamPair(UTIL.get_local_file_size, None)
+    
+    key_group_pairs = apply_grouper_funcs(nonsmall_files, [size_grpr, size_grpr])
+    #key_group_pairs.sort(key=lambda x: x[0])
+    
+    for key,grp in key_group_pairs:
+        print("~~~~~~~~~~~~~ <> ~~~~~~~~~~~~~")
+        print(f"key: {round(key/1024/1024, 3)} MB")
+        for elm in grp:
+            print(elm)
+#)
+
+
 if __name__ == "__main__":
 #(
     #main_1(dict())
@@ -443,7 +538,9 @@ if __name__ == "__main__":
     
     #main_9(dict())
     
-    main_10(dict())
+    #main_10(dict())
+    
+    main_11(dict())
     
 #)
 

@@ -62,12 +62,6 @@ def list_of_two_tuples_str(lot, lot_descriptor):
 #)
 
 
-def get_local_file_size(path: CT.t_Str):
-#(
-    return os.path.getsize(path)
-#)
-
-
 def get_local_file_size(path: CT.t_Str, opt: CT.t_Any):
 #(
     return os.path.getsize(path)
