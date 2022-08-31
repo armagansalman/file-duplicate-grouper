@@ -4,7 +4,7 @@ import common_types as CT
 import opaque_user_types as OT
 
 import path_functions as PFuncs
-from temporary_dir_data import DIRS
+from const_data import DIRS
 import util as UTIL
 
 

@@ -78,9 +78,17 @@ def read_local_file_bytes(file_path: CT.t_Str, start_offset: CT.t_Int, \
         
         #TODO(armagan): Read by chunks.
         with open(file_path, "rb") as in_fobj:
-            in_fobj.seek(start_offset)
-            data = in_fobj.read(end_offset - start_offset + 1)
-        #
+        #(
+            if start_offset == 0:
+            #(
+                data = in_fobj.read(end_offset - start_offset + 1)
+            #)
+            else:
+            #(
+                in_fobj.seek(start_offset)
+                data = in_fobj.read(end_offset - start_offset + 1)
+            #)
+        #)
         
         return data
     #)
@@ -88,6 +96,13 @@ def read_local_file_bytes(file_path: CT.t_Str, start_offset: CT.t_Int, \
     #(
         return b''
     #)
+#)
+
+
+def read_opaque_local_file_bytes(file_path: CT.t_Str, opt_prm: CT.t_Any):
+#(
+    return read_local_file_bytes(file_path, opt_prm["start_offset"], \
+                                opt_prm["end_offset"])
 #)
 
 

@@ -3,6 +3,7 @@ import opaque_user_types as OT
 
 import opaque_helper_functions as OpHlp
 import util as UTIL
+import const_data as CDATA
 
 
 def get_multi_hashable_data(obj_iter: OT.t_ObjIter, getter: OT.t_FnGetHashable \
@@ -125,6 +126,10 @@ def apply_grouper_funcs_dfs(obj_iter, getter_and_param_list: \
         return obj_iter
     #)
     
+    obj_iter = list(obj_iter)
+    
+    if len(obj_iter) < 1:
+        return []
     
     fn_and_param = getter_and_param_list[FN_IDX]
     getter: OT.t_FnGetHashable = fn_and_param.function
@@ -486,14 +491,9 @@ def main_10(args):
 #)
 
 
-def main_11(args):
+def filter_and_apply_groupers(obj_iter, SMALLEST_FSIZE, GROUPERS):
 #(
-    #512000 byte smallest file size.
-    #Groupers=size,512-hash,65536-hash 
-    
-    dirs = ["/home/genel"]
-    
-    fpaths = OpHlp.collect_all_file_paths(dirs, lambda x: x)
+    fpaths = OpHlp.collect_all_file_paths(obj_iter, lambda x: x)
     
     PATHS = tuple(fpaths)
     
@@ -502,19 +502,104 @@ def main_11(args):
                             SMALLEST_SIZE , PATHS)
     #
     
-    #size_groups = group_objects(PATHS, UTIL.get_local_file_size, None)
+    key_group_pairs = apply_grouper_funcs(nonsmall_files, GROUPERS)
     
-    
+    return key_group_pairs
+#)
+
+
+def filter_and_triple_hash(obj_iter, SMALLEST_FSIZE):
+#(
     size_grpr = OT.FnHashableParamPair(UTIL.get_local_file_size, None)
     
-    key_group_pairs = apply_grouper_funcs(nonsmall_files, [size_grpr, size_grpr])
-    #key_group_pairs.sort(key=lambda x: x[0])
     
+    def hash_getter(fpath, prm):
+    #(
+        start = prm["start_offset"]
+        end = prm["end_offset"]
+        
+        data = UTIL.read_local_file_bytes(fpath, start, end)
+        
+        return UTIL.sha512_hexdigest(data)
+    #)
+    
+    BYTE = 1
+    KB = 1024
+    MB = 1024 * KB
+    
+    hash_grprs = [ 
+                  OT.FnHashableParamPair(hash_getter, \
+                                    {"start_offset": 0 , "end_offset": 512}) \
+                , OT.FnHashableParamPair(hash_getter, \
+                                    {"start_offset": 0 , "end_offset": 64 * KB}) \
+                , OT.FnHashableParamPair(hash_getter, \
+                                        {"start_offset": 0 , "end_offset": 1 * MB})
+                ]
+    #
+    
+    return filter_and_apply_groupers(obj_iter, SMALLEST_FSIZE, [size_grpr, *hash_grprs])
+#)
+
+
+def main_11(args):
+#(
+    #512000 byte smallest file size.
+    #Groupers=size,512-hash,65536-hash 
+    
+    dirs = ["/home/genel"]
+    
+    BYTE = 1
+    KB = 1024 * BYTE
+    SMALLEST_FSIZE = 512 * KB
+    
+    key_group_pairs = filter_and_triple_hash(dirs, SMALLEST_FSIZE)
+    
+    grp_idx = 0
+    fidx = 0
     for key,grp in key_group_pairs:
-        print("~~~~~~~~~~~~~ <> ~~~~~~~~~~~~~")
-        print(f"key: {round(key/1024/1024, 3)} MB")
+    #(
+        #print(f"~~~~~~~~~~~~~ Group IDX: {grp_idx}")
+        #print(f"key: {round(key/1024/1024, 3)} MB")
+        #print(f"sha512 key: {key[:10]}")
         for elm in grp:
-            print(elm)
+        #(
+            #print(f"*** File IDX: {fidx} ***")
+            print(f"(Group=({grp_idx}), File=({fidx})), ({elm})")
+            #print(f"{elm}")
+            fidx += 1
+        #)
+        print()
+        
+        grp_idx += 1
+    #)
+#)
+
+
+def main_12(args):
+#(
+    DIRS = CDATA.DIRS
+    
+    dirs = DIRS["dirs_20"]
+    
+    BYTE = 1
+    KB = 1024 * BYTE
+    SMALLEST_FSIZE = 512 * KB
+    
+    key_group_pairs = filter_and_triple_hash(dirs, SMALLEST_FSIZE)
+    
+    grp_idx = 0
+    fidx = 0
+    for key,grp in key_group_pairs:
+    #(
+        for elm in grp:
+        #(
+            print(f"(Group=({grp_idx}), File=({fidx})), ({elm})")
+            fidx += 1
+        #)
+        print()
+        
+        grp_idx += 1
+    #)
 #)
 
 
@@ -540,7 +625,9 @@ if __name__ == "__main__":
     
     #main_10(dict())
     
-    main_11(dict())
+    #main_11(dict())
+    
+    main_12(dict())
     
 #)
 
