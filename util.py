@@ -5,6 +5,15 @@ import json as JSON
 import common_types as CT
 
 
+def second_to_minute_second_str(sec: CT.t_Int):
+#(
+    minutes = sec // 60
+    seconds = sec % 60
+    
+    return f"minutes:{minutes}, seconds:{seconds}"
+#)
+
+
 def pretty_dict_str(dct, dict_descriptor):
 #(
     str_buffer = []

@@ -192,156 +192,6 @@ def print_path_size_iter(paths_n_sizes):
 #)
 
 
-def main_1(args):
-#(
-    dirs = ["/home/genel", "/home/genel", "/home/genel", "/home/genel/Desktop/" \
-            ,"/home/genel/Desktop/" ]
-    
-    path_n_sizes = get_fsizes_from_given_dirs(dirs, lambda x: x)
-    
-    print_path_size_iter(path_n_sizes)
-#)
-
-
-def main_2(args):
-#(
-    dirs = ["/media/genel/Bare-Data/"]
-    
-    path_n_sizes = get_fsizes_from_given_dirs(dirs, lambda x: x)
-    
-    print_path_size_iter(path_n_sizes)
-#)
-
-
-def main_3(args):
-#(
-    dirs = ["/media/genel/9A4277A5427784B3/"]
-    # 513815 items, totalling 88,4 GiB (94.866.674.987 bytes)
-    # 408255 of which are files.
-    
-    """
-    real    9m27,050s
-    user    0m23,461s
-    sys     1m25,914s
-    """
-    
-    path_n_sizes = get_fsizes_from_given_dirs(dirs, lambda x: x)
-    
-    print_path_size_iter(path_n_sizes)
-#)
-
-
-def main_4(args):
-#(
-    dirs = ["/media/genel/Bare-Data/"]
-    # 34734 items. 32742 files.
-    
-    path_n_sizes = get_fsizes_from_given_dirs(dirs, lambda x: x)
-    
-    size_groups = group_objs_by_fsize(path_n_sizes, lambda x: x[1])
-    
-    count = 0
-    for sz, multi_obj in size_groups.items():
-    #(
-        if len(multi_obj) < 2: # Unique item. No duplicate.
-            continue
-        
-        print("-----------")
-        print(f"Group size: {sz}")
-        print("Objects: ...")
-        
-        for obj in multi_obj:
-        #(
-            count += 1
-            
-            print(f"Object {count}: {obj}")
-        #)
-        print()
-    #)
-    
-    
-    #print_path_size_iter(path_n_sizes)
-#)
-
-
-def main_5(args):
-#(
-    dirs = ["/home/genel/Downloads/", "/home/genel/Documents/"]
-    
-    fpaths = OpHlp.collect_all_file_paths(dirs, lambda x: x)
-    
-    GAP = 1024 * 1
-    
-    start_idx = 0
-    end_idx = GAP + start_idx - 1
-    
-    print(f"Gap:{GAP}, start_idx:{start_idx}, end_idx:{end_idx}")
-    
-    def read_byte_from_path(path, start, end):
-    #(
-        return UTIL.read_local_file_bytes(path, start, end)
-    #)
-    
-    obj_bytes_coll = get_multi_obj_bytes(fpaths, read_byte_from_path, start_idx, end_idx)
-    
-    for idx, elm in enumerate(obj_bytes_coll):
-    #(
-        obj, data = elm
-        
-        print(f"----------- {idx}")
-        print(obj)
-        
-        sz = len(data)
-        
-        print_len = 10
-        
-        if sz < print_len:
-            print(sz)
-        else:
-            print(data[-print_len:])
-        #
-        print()
-    #)
-#)
-
-
-def main_6(args):
-#(
-    dirs = ["/home/genel/Downloads/", "/home/genel/Documents/"]
-    
-    fpaths = OpHlp.collect_all_file_paths(dirs, lambda x: x)
-    
-    size_groups = group_objs_by_fsize(fpaths, UTIL.get_local_file_size)
-    
-    print(f"Total key count: {len(size_groups)}")
-    
-    dict_str = UTIL.pretty_dict_str(size_groups, "File len bytes to paths")
-    
-    print(dict_str)
-    
-    uniques = ignore_uniques(size_groups.items(), lambda x: x[0], lambda x: x[1])
-    
-    lol_str = UTIL.list_of_two_tuples_str(uniques, "File size bytes, File paths")
-    
-    print(lol_str)
-    
-    exit()
-    #######
-    
-    GAP = 1024 * 1
-    
-    start_idx = 0
-    end_idx = GAP + start_idx - 1
-    
-    print(f"Gap:{GAP}, start_idx:{start_idx}, end_idx:{end_idx}")
-    
-    def read_byte_from_path(path, start, end):
-    #(
-        return UTIL.read_local_file_bytes(path, start, end)
-    #)
-#)
-
-
 def print_uniques_by_size(args):
 #(
     #dirs = ["/home/genel/Downloads/", "/home/genel/Documents/"]
@@ -559,12 +409,26 @@ def filter_and_triple_hash(obj_iter, SMALLEST_FSIZE):
 
 def main_11(args):
 #(
+    import time
+    
+    print(f"main_11 Start: {time.asctime()}")
     #512000 byte smallest file size.
     #Groupers=size,512-hash,65536-hash 
+    time_start = time.perf_counter()
     
-    #dirs = ["/home/genel"]
+    #json_out_path = args["json_out_path"]
+    milliseconds = round(time.time_ns() / 1000)
+    json_out_path = f"opaque-core.main-11.millisec-{milliseconds}.json"
+    
+    DIRS = CDATA.DIRS
+    
+    #dirs = ["/home/genel"] # 125650 items, totalling 52,5 GiB (56.358.510.573 bytes)
     dirs = ["/media/genel/Bare-Data/"] # 34735 items, totalling 67,6 GiB (72.553.152.052 bytes)
     #dirs = ["/media/genel/9A4277A5427784B3/"] # 513816 items, totalling 88,4 GiB (94.866.674.987 bytes)
+    
+    #dirs = DIRS["dirs_20"]
+    
+    print(f"Dirs: {dirs}")
     
     BYTE = 1
     KB = 1024 * BYTE
@@ -572,41 +436,46 @@ def main_11(args):
     
     SMALLEST_FSIZE = 512 * KB
     
+    # Try: 512Byte, 1KB, 1MB
+    # Try: 128Byte, 1KB, 1MB
+    # Try: 128Byte, 2KB, 1MB
     byte_idx_pairs = [ 
-                        (0, 1 * KB) \
-                        #,(0, 64 * KB) \
-                        ,(0, 1 * MB) \
+                        (0, 256 * BYTE) \
+                        ,(0, 2 * KB) \
+                        ,(0, 64 * KB) \
                     ]
     #
+    #Win10; time (second)": 1014.4773, "Hash byte idx pairs": [[0, 256], [0, 2048], [0, 1048576]]
+    
     
     key_group_pairs = filter_and_multiple_hash(dirs, SMALLEST_FSIZE, byte_idx_pairs)
+    
+    time_end = time.perf_counter()
+    
+    group_time_diff = time_end - time_start
     
     jsndata = UTIL.key_group_pairs_to_json_data(key_group_pairs)
     
     #objects = jsndata["groups"]
+    total_time = time.perf_counter() - time_start
     
-    UTIL.write_json(jsndata, "json-out.json")
     
-    exit()
+    #grp_time = UTIL.second_to_minute_second_str(round(group_time_diff, 3))
+    #total_time = UTIL.second_to_minute_second_str(round(total_time, 3))
     
-    grp_idx = 0
-    fidx = 0
-    for key,grp in key_group_pairs:
-    #(
-        #print(f"~~~~~~~~~~~~~ Group IDX: {grp_idx}")
-        #print(f"key: {round(key/1024/1024, 3)} MB")
-        #print(f"sha512 key: {key[:10]}")
-        for elm in grp:
-        #(
-            #print(f"*** File IDX: {fidx} ***")
-            print(f"(Group=({grp_idx}), File=({fidx})), ({elm})")
-            #print(f"{elm}")
-            fidx += 1
-        #)
-        print()
-        
-        grp_idx += 1
-    #)
+    info = dict()
+    
+    info["Directories"] = dirs
+    info["Smallest file size (bytes)"] = SMALLEST_FSIZE
+    info["Elapsed time for groupers"] = round(group_time_diff, 3)
+    info["Group + convert to json time"] = round(total_time, 3)
+    info["Hash byte idx pairs"] = byte_idx_pairs
+    
+    jsndata["Info"] = info
+    
+    UTIL.write_json(jsndata, json_out_path)
+    
+    print(f"main_11 End: {time.asctime()}")
 #)
 
 
@@ -660,7 +529,8 @@ if __name__ == "__main__":
     
     #main_10(dict())
     
-    main_11(dict())
+    #{"json_out_path": ""}
+    main_11( dict() )
     
     #main_12(dict())
     
