@@ -411,24 +411,24 @@ def main_11(args):
 #(
     import time
     
-    print(f"main_11 Start: {time.asctime()}")
+    print(f"main_11 Start: {UTIL.local_datetime_str_iso8601()}")
     #512000 byte smallest file size.
     #Groupers=size,512-hash,65536-hash 
     time_start = time.perf_counter()
     
     #json_out_path = args["json_out_path"]
-    milliseconds = round(time.time_ns() / 1000)
-    json_out_path = f"opaque-core.main-11.millisec-{milliseconds}.json"
+    #milliseconds = round(time.time_ns() / 1000)
+    json_out_path = f"opaque-core.main-11.{UTIL.local_datetime_str_iso8601()}.json"
     
     DIRS = CDATA.DIRS
     
-    #dirs = ["/home/genel"] # 125650 items, totalling 52,5 GiB (56.358.510.573 bytes)
-    dirs = ["/media/genel/Bare-Data/"] # 34735 items, totalling 67,6 GiB (72.553.152.052 bytes)
+    dirs = ["/home/genel"] # 125650 items, totalling 52,5 GiB (56.358.510.573 bytes)
+    #dirs = ["/media/genel/Bare-Data/"] # 34735 items, totalling 67,6 GiB (72.553.152.052 bytes)
     #dirs = ["/media/genel/9A4277A5427784B3/"] # 513816 items, totalling 88,4 GiB (94.866.674.987 bytes)
     
     #dirs = DIRS["dirs_20"]
     
-    print(f"Dirs: {dirs}")
+    #print(f"Dirs: {dirs}")
     
     BYTE = 1
     KB = 1024 * BYTE
@@ -436,13 +436,14 @@ def main_11(args):
     
     SMALLEST_FSIZE = 512 * KB
     
-    # Try: 512Byte, 1KB, 1MB
-    # Try: 128Byte, 1KB, 1MB
-    # Try: 128Byte, 2KB, 1MB
+    # Try: (256Byte, 2KB, 128KB)
+    
+    # (256 Byte, 2 KB, 64 KB, 1 MB) seems a good balance for hash byte index intervals.
     byte_idx_pairs = [ 
                         (0, 256 * BYTE) \
                         ,(0, 2 * KB) \
                         ,(0, 64 * KB) \
+                        ,(0, 1 * MB) \
                     ]
     #
     #Win10; time (second)": 1014.4773, "Hash byte idx pairs": [[0, 256], [0, 2048], [0, 1048576]]
@@ -475,7 +476,7 @@ def main_11(args):
     
     UTIL.write_json(jsndata, json_out_path)
     
-    print(f"main_11 End: {time.asctime()}")
+    print(f"main_11 End: {UTIL.local_datetime_str_iso8601()}")
 #)
 
 

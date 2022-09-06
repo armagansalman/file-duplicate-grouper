@@ -1,16 +1,20 @@
 import os
+import time
 import hashlib as HASH
 import json as JSON
 
 import common_types as CT
 
 
-def second_to_minute_second_str(sec: CT.t_Int):
+def local_datetime_str_iso8601():
 #(
-    minutes = sec // 60
-    seconds = sec % 60
+    lt = time.localtime()
     
-    return f"minutes:{minutes}, seconds:{seconds}"
+    msec = round(time.time() % 1, 3)
+    
+    iso_8601_str = f"{lt.tm_year}-{lt.tm_mon}-{lt.tm_mday}T{lt.tm_hour}-{lt.tm_min}-{lt.tm_sec}-{msec}"
+    
+    return iso_8601_str
 #)
 
 
