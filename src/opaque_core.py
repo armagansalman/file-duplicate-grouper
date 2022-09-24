@@ -447,9 +447,9 @@ def main_11(args):
     
     # Try only 128 bytes for Win10. Check hot and cold speed with that config.
     byte_idx_pairs = [ 
-                        (0, 128 * BYTE) \
-                        #,(0, 2 * KB) \
-                        #,(0, 64 * KB) \
+                        (0, 256 * BYTE) \
+                        ,(0, 2 * KB) \
+                        ,(0, 64 * KB) \
                         #,(0, 1 * MB) \
                     ]
     #
