@@ -210,10 +210,27 @@ def write_json(data, fpath, mode="w"):
 #)
 
 
-def write_csv(list_of_list, filepath, encoding, mode): # Rearrange param order.
+def write_csv(rows, filepath, _encoding="utf8", mode="w"): # Rearrange param order.
 #(
     # TODO(armagan): Complete. (Separator (;), quote ("))
-    pass
+    import csv
+    
+    DELIMITER = ';'
+    QUOTECHAR = '"'
+    
+    with open(filepath, mode, encoding=_encoding, newline='') as csvfile:
+    #(    
+        csvwriter = csv.writer(csvfile, delimiter=DELIMITER,
+                                quotechar=QUOTECHAR, quoting=csv.QUOTE_MINIMAL)
+        #
+        csvwriter.writerow([ "[CSV INFO]", "Encoding:", _encoding ])
+        csvwriter.writerow([ "[CSV INFO]", "Delimiter:", DELIMITER ])
+        csvwriter.writerow([ "[CSV INFO]", "Quotechar:", QUOTECHAR ])
+        
+        csvwriter.writerows(rows)
+        #csvwriter.writerow(['Spam'] * 5 + ['Baked Beans'])
+        #csvwriter.writerow(['Spam', 'Lovely Spam', 'Wonderful Spam'])
+    #)
 #)
 
 

@@ -419,11 +419,12 @@ def main_11(args):
     #json_out_path = args["json_out_path"]
     #milliseconds = round(time.time_ns() / 1000)
     json_out_path = f"op-core.main-11.{UTIL.local_datetime_str_iso8601()}.json"
+    csv_out_path = f"op-core.main-11.{UTIL.local_datetime_str_iso8601()}.csv"
     
     DIRS = CDATA.DIRS
     
-    #dirs = ["/home/genel"] # 125650 items, totalling 52,5 GiB (56.358.510.573 bytes)
-    dirs = ["/media/genel/Bare-Data/"] # 34735 items, totalling 67,6 GiB (72.553.152.052 bytes)
+    dirs = ["/home/genel"] # 125650 items, totalling 52,5 GiB (56.358.510.573 bytes)
+    #dirs = ["/media/genel/Bare-Data/"] # 34735 items, totalling 67,6 GiB (72.553.152.052 bytes)
     #dirs = ["/media/genel/9A4277A5427784B3/"] # 513816 items, totalling 88,4 GiB (94.866.674.987 bytes)
     
     #dirs = DIRS["dirs_20"]
@@ -443,10 +444,12 @@ def main_11(args):
     
     # (256 Byte, 2 KB, 64 KB, 1 MB) seems a good balance for (512 KB smallest) hash byte index intervals.
     
+    
+    # Try only 128 bytes for Win10. Check hot and cold speed with that config.
     byte_idx_pairs = [ 
-                        (0, 256 * BYTE) \
-                        ,(0, 2 * KB) \
-                        ,(0, 64 * KB) \
+                        (0, 128 * BYTE) \
+                        #,(0, 2 * KB) \
+                        #,(0, 64 * KB) \
                         #,(0, 1 * MB) \
                     ]
     #
@@ -455,15 +458,8 @@ def main_11(args):
     
     key_group_pairs = filter_and_multiple_hash(dirs, SMALLEST_FSIZE, byte_idx_pairs)
     
-    csv_data = UTIL.key_group_pairs_to_csv_data(key_group_pairs, {"inf1": 1})
-    
-    for line in csv_data:
-        print(line)
-    #
-    
-    
-    print(f"main_11 End: {UTIL.local_datetime_str_iso8601()}")
-    exit()
+    #print(f"main_11 csv End: {UTIL.local_datetime_str_iso8601()}")
+    #exit()
     
     time_end = time.perf_counter()
     
@@ -483,7 +479,7 @@ def main_11(args):
     info["START_DATETIME"] = START_DATETIME
     info["Directories"] = dirs
     info["Smallest file size (bytes)"] = SMALLEST_FSIZE
-    info["Elapsed time for groupers"] = round(group_time_diff, 3)
+    info["Elapsed seconds for groupers"] = round(group_time_diff, 3)
     #info["Group + convert to json time"] = round(total_time, 3)
     info["Hash byte idx pairs"] = byte_idx_pairs
     
@@ -493,6 +489,9 @@ def main_11(args):
     jsndata["Info"] = info
     
     UTIL.write_json(jsndata, json_out_path)
+    
+    csv_data = UTIL.key_group_pairs_to_csv_data(key_group_pairs, info)
+    UTIL.write_csv(csv_data, csv_out_path)
     
     print(f"main_11 End: {UTIL.local_datetime_str_iso8601()}")
 #)

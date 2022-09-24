@@ -1,5 +1,6 @@
 temporary_dir_data.py
 
+*.csv
 *.json
 *.txt
 *.bak
