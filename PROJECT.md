@@ -1,8 +1,7 @@
-- TODO(armagan): Learn Markdown
-- TODO(armagan): ???mypy can't check element types of lists???
-
 - NOTE: Every type name starts with "t_" characters. First letter after t_
 is always capitalized. Example: t_List, t_Int, t_Set, t_Tuple ...
+
+------
 
 A Traverser module mdl_Traverser is defined as follows:
 
@@ -34,8 +33,8 @@ recursively. Return found and given file paths as an iterable.
 4) find_files_recursive function does not call discard_redundants function.
 The user may or may not want to call discard_redundants function.
 
-
 ------
+
 From "A Relational Model of Data for Large Shared Data Banks" by E. F. Codd
 
 R(g).r.d
@@ -43,3 +42,8 @@ R = Relation name
 g = generation identifier (optional)
 r = role name (optional)
 d = domain name
+
+------
+
+- TODO(armagans): Learn Markdown
+- TODO(armagans): ???mypy can't check element types of lists???
