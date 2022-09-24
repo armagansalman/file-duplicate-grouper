@@ -5,6 +5,8 @@ is always capitalized. Example: t_List, t_Int, t_Set, t_Tuple ...
 
 - Every code block (similar to C { }) starts with #( and ends with #).
 Example:
+
+```python
     for i in range(10):
     #(
         if i < 7:
@@ -16,6 +18,7 @@ Example:
             print(2*i)
         #)
     #)
+```
 
 ------
 
