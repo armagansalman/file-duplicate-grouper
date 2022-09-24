@@ -1,4 +1,6 @@
-- NOTE: Every type name starts with "t_" characters. First letter after t_
+# Project Conventions
+
+- Every type name starts with "t_" characters. First letter after t_
 is always capitalized. Example: t_List, t_Int, t_Set, t_Tuple ...
 
 ------
