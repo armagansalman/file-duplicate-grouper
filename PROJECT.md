@@ -3,6 +3,20 @@
 - Every type name starts with "t_" characters. First letter after t_
 is always capitalized. Example: t_List, t_Int, t_Set, t_Tuple ...
 
+- Every code block (similar to C { }) starts with #( and ends with #).
+Example:
+    for i in range(10):
+    #(
+        if i < 7:
+        #(
+            print(i)
+        #)
+        else:
+        #(
+            print(2*i)
+        #)
+    #)
+
 ------
 
 A Traverser module mdl_Traverser is defined as follows:
