@@ -11,6 +11,8 @@ A Traverser module mdl_Traverser is defined as follows:
 its parents are also in the iterable. For example: discard 
 "/home/videos" and "/home/music" paths if "/home" path is in the iterable.
 
+    *Implemented in path_functions.py/ignore_redundant_subdirs (2022-09-24)*
+    
     Function Signature (in Python syntax):
         t_Iter = Iterable
         t_Path = A USER DEFINED TYPE
@@ -22,6 +24,8 @@ its parents are also in the iterable. For example: discard
 2) Given an iterable of directory paths or file paths, find all file paths
 recursively. Return found and given file paths as an iterable.
 
+    *Implemented in path_functions.py/get_fpaths_from_path_iter (2022-09-24)*
+    
     Function Signature (in Python syntax):
         t_Iter = Iterable
         t_Path = A USER DEFINED TYPE

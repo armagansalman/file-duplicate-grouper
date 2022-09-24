@@ -16,7 +16,7 @@ def is_file(path: t_Str):
 #)
 
 
-def ignore_redundant_subdirs(dirs):
+def ignore_redundant_subdirs(dirs: t_List[t_Str]):
     """ If a dir D_1 is a descendant of a dir D_2, don't include D_1 as
         it will be included with recursive search of D_2. 
         WARNING: If a given path is a file, it will also be ignored.

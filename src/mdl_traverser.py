@@ -2,6 +2,7 @@ from common_types import *
 from user_types import *
 
 import path_functions as PFuncs
+import opaque_helper_functions as OHF
 
 # Type definitions:
 #t_Iter = Iterable
