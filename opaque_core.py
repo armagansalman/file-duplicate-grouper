@@ -347,9 +347,8 @@ def filter_and_apply_groupers(obj_iter, SMALLEST_FSIZE, GROUPERS):
     
     PATHS = tuple(fpaths)
     
-    SMALLEST_SIZE = 512000
     nonsmall_files = filter(lambda elm: UTIL.get_local_file_size(elm, None) >= \
-                            SMALLEST_SIZE , PATHS)
+                            SMALLEST_FSIZE , PATHS)
     #
     
     key_group_pairs = apply_grouper_funcs(nonsmall_files, GROUPERS)
@@ -411,19 +410,20 @@ def main_11(args):
 #(
     import time
     
-    print(f"main_11 Start: {UTIL.local_datetime_str_iso8601()}")
+    START_DATETIME = UTIL.local_datetime_str_iso8601()
+    print(f"main_11 Start: {START_DATETIME}")
     #512000 byte smallest file size.
     #Groupers=size,512-hash,65536-hash 
     time_start = time.perf_counter()
     
     #json_out_path = args["json_out_path"]
     #milliseconds = round(time.time_ns() / 1000)
-    json_out_path = f"opaque-core.main-11.{UTIL.local_datetime_str_iso8601()}.json"
+    json_out_path = f"op-core.main-11.{UTIL.local_datetime_str_iso8601()}.json"
     
     DIRS = CDATA.DIRS
     
-    dirs = ["/home/genel"] # 125650 items, totalling 52,5 GiB (56.358.510.573 bytes)
-    #dirs = ["/media/genel/Bare-Data/"] # 34735 items, totalling 67,6 GiB (72.553.152.052 bytes)
+    #dirs = ["/home/genel"] # 125650 items, totalling 52,5 GiB (56.358.510.573 bytes)
+    dirs = ["/media/genel/Bare-Data/"] # 34735 items, totalling 67,6 GiB (72.553.152.052 bytes)
     #dirs = ["/media/genel/9A4277A5427784B3/"] # 513816 items, totalling 88,4 GiB (94.866.674.987 bytes)
     
     #dirs = DIRS["dirs_20"]
@@ -434,22 +434,36 @@ def main_11(args):
     KB = 1024 * BYTE
     MB = 1024 * KB
     
-    SMALLEST_FSIZE = 512 * KB
+    #SMALLEST_FSIZE = 128 * KB
+    SMALLEST_FSIZE = 500 * KB
+    
+    # TODO(armagan): Change Smallest_fsize. 64KB?
     
     # Try: (256Byte, 2KB, 128KB)
     
-    # (256 Byte, 2 KB, 64 KB, 1 MB) seems a good balance for hash byte index intervals.
+    # (256 Byte, 2 KB, 64 KB, 1 MB) seems a good balance for (512 KB smallest) hash byte index intervals.
+    
     byte_idx_pairs = [ 
                         (0, 256 * BYTE) \
                         ,(0, 2 * KB) \
                         ,(0, 64 * KB) \
-                        ,(0, 1 * MB) \
+                        #,(0, 1 * MB) \
                     ]
     #
     #Win10; time (second)": 1014.4773, "Hash byte idx pairs": [[0, 256], [0, 2048], [0, 1048576]]
     
     
     key_group_pairs = filter_and_multiple_hash(dirs, SMALLEST_FSIZE, byte_idx_pairs)
+    
+    csv_data = UTIL.key_group_pairs_to_csv_data(key_group_pairs, {"inf1": 1})
+    
+    for line in csv_data:
+        print(line)
+    #
+    
+    
+    print(f"main_11 End: {UTIL.local_datetime_str_iso8601()}")
+    exit()
     
     time_end = time.perf_counter()
     
@@ -466,11 +480,15 @@ def main_11(args):
     
     info = dict()
     
+    info["START_DATETIME"] = START_DATETIME
     info["Directories"] = dirs
     info["Smallest file size (bytes)"] = SMALLEST_FSIZE
     info["Elapsed time for groupers"] = round(group_time_diff, 3)
-    info["Group + convert to json time"] = round(total_time, 3)
+    #info["Group + convert to json time"] = round(total_time, 3)
     info["Hash byte idx pairs"] = byte_idx_pairs
+    
+    DATETIME_BEFORE_JSON_WRITE = UTIL.local_datetime_str_iso8601()
+    info["DATETIME_BEFORE_JSON_WRITE"] = DATETIME_BEFORE_JSON_WRITE
     
     jsndata["Info"] = info
     

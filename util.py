@@ -12,7 +12,7 @@ def local_datetime_str_iso8601():
     
     msec = round(time.time() % 1, 3)
     
-    iso_8601_str = f"{lt.tm_year}-{lt.tm_mon}-{lt.tm_mday}T{lt.tm_hour}-{lt.tm_min}-{lt.tm_sec}-{msec}"
+    iso_8601_str = f"{lt.tm_year}-{lt.tm_mon}-{lt.tm_mday}T{lt.tm_hour}:{lt.tm_min}:{lt.tm_sec}:{msec}"
     
     return iso_8601_str
 #)
@@ -159,6 +159,48 @@ def key_group_pairs_to_json_data(pairs):
 #)
 
 
+def key_group_pairs_to_csv_data(pairs, info: CT.t_Dict):
+#(
+    # TODO(armagan): Add info part.
+    # [GROUP-FILE-ELEMENT] ;0 ;1 ;"/home/documents/f1"
+    # [GROUP-FILE-ELEMENT] ;0 ;2 ;"/home/documents/f2"
+    # [INFO] ;"Start time (iso-8601):" ;"2022-09-17T22:12"
+    # [INFO] ;"Directories:" ;"/dir1" ;"/dir2" ;"/dir3"
+    # [INFO] ;"End time (iso-8601):" ;"2022-09-17T22:13"
+    # [INFO] ;"Grouper functions:" ;"500 KB (smallest fsize), sha512: 512 Byte, 4 KB, 1 MB"
+    
+    csv_data = []
+    
+    for key, val in info.items():
+    #(
+        info_line = ["[INFO]", key, val]
+        csv_data.append( info_line )
+    #)
+    
+    
+    grp_idx = 0
+    file_idx = 0
+    
+    for key, group in pairs:
+    #(
+        for elm in group:
+        #(
+            line_data = ["[GROUP-FILE-ELEMENT]"]
+            
+            line_data.extend( [str(grp_idx), str(file_idx), str(elm)] )
+            
+            csv_data.append(line_data)
+            
+            file_idx += 1
+        #)
+        
+        
+        grp_idx += 1
+    #)
+    return csv_data
+#)
+
+
 def write_json(data, fpath, mode="w"):
 #(
     with open(fpath, mode, encoding="utf-8") as fout:
@@ -166,3 +208,13 @@ def write_json(data, fpath, mode="w"):
         JSON.dump(data, fout)
     #)
 #)
+
+
+def write_csv(list_of_list, filepath, encoding, mode): # Rearrange param order.
+#(
+    # TODO(armagan): Complete. (Separator (;), quote ("))
+    pass
+#)
+
+
+
