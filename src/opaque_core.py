@@ -101,7 +101,7 @@ def ignore_zero_len(obj_iter: OT.t_ObjIter, get_size: OT.t_FnGetObjSize):
 #(
     for obj in obj_iter:
     #(
-        sz = get_size(obj)
+        sz = get_size(obj, None)
         if sz < 1:
             continue
         else:
@@ -216,131 +216,6 @@ def print_uniques_by_size(args):
 #)
 
 
-def main_7(args):
-#(
-    dirs = ["/home/genel/", "/home/genel/Downloads/"]
-    
-    dct = {"dirs": dirs}
-    
-    print_uniques_by_size(dct)
-#)
-
-
-def main_8(args):
-#(
-    dirs = ["/home/genel/Downloads/", "/home/genel/Documents/"]
-    
-    fpaths = OpHlp.collect_all_file_paths(dirs, lambda x: x)
-    
-    PATHS = list(fpaths)
-    
-    def size_getter(obj, options):
-    #(
-        return UTIL.get_local_file_size(obj)
-    #)
-    
-    objs_n_sizes = get_multi_hashable_data(fpaths, size_getter, None)
-    
-    tmp = map(lambda x: [x[0], [x[1]]], objs_n_sizes)
-    
-    string = UTIL.list_of_two_tuples_str(tmp, "Objects and Sizes")
-    
-    print(string)
-    
-    
-    def read_file_bytes(obj, options: CT.t_Any) -> CT.t_Bytes:
-    #(
-        start = options["start_idx"]
-        end = options["end_idx"]
-        path = obj
-        
-        return UTIL.read_local_file_bytes(path, start, end)
-    #)
-    
-    dct = {"start_idx":0, "end_idx":64}
-    obj_bytes = get_multi_hashable_data(PATHS, read_file_bytes, dct)
-    
-    tmp2 = map(lambda x: [ x[0] , UTIL.sha512_hexdigest(x[1]) ] , obj_bytes)
-    
-    for left, right in tmp2:
-    #(
-        print(f"Left: {left}")
-        print(f"Right: {right}")
-    #)
-    
-#)
-
-
-def main_9(args):
-#(
-    dirs = ["/home/genel/Downloads/", "/home/genel/Documents/"]
-    
-    fpaths = OpHlp.collect_all_file_paths(dirs, lambda x: x)
-    
-    PATHS = list(fpaths)
-    
-    size_groups = group_objects(PATHS, UTIL.get_local_file_size, None)
-    
-    dup_groups = ignore_unique_groups(size_groups.items(), \
-                                    lambda x: x[0], lambda x: x[1])
-    #
-    
-    
-    
-    pretty_str = UTIL.list_of_two_tuples_str(dup_groups, "Removed Uniques, Non-zero len")
-    
-    print(pretty_str)
-    
-    def read_bytes(obj, options):
-    #(
-        return UTIL.read_local_file_bytes(obj, options["start_idx"], options["end_idx"])
-    #)
-    
-    dct = {"start_idx":0 , "end_idx": 64}
-    obj_to_bytes = get_multi_hashable_data(PATHS, read_bytes, dct)
-    
-    obj_to_sha512digest = map(lambda x: [ x[0], UTIL.sha512_hexdigest(x[1]) ], \
-                                obj_to_bytes)
-    #
-
-    #
-    
-    
-#)
-
-
-def main_10(args):
-#(
-    dirs = ["/home/genel/"]
-    
-    fpaths = OpHlp.collect_all_file_paths(dirs, lambda x: x)
-    
-    PATHS = list(fpaths)
-    
-    def read_bytes(obj, options):
-    #(
-        return UTIL.read_local_file_bytes(obj, options["start_idx"], options["end_idx"])
-    #)
-    
-    dct = {"start_idx":0 , "end_idx": 64}
-    obj_to_bytes = get_multi_hashable_data(PATHS, read_bytes, dct)
-    
-    obj_to_sha512digest = map(lambda x: [ x[0], UTIL.sha512_hexdigest(x[1]) ], \
-                                obj_to_bytes)
-    #
-    
-    ix = 0
-    for obj, digest in obj_to_sha512digest:
-    #(
-        print(f"~~~~~~~ Index: {ix}")
-        print(f"Obj: {obj}")
-        print(f"- sha512: {digest}")
-        
-        ix += 1
-    #)
-#)
-
-
 def filter_and_apply_groupers(obj_iter, SMALLEST_FSIZE, GROUPERS):
 #(
     fpaths = OpHlp.collect_all_file_paths(obj_iter, lambda x: x)
@@ -413,7 +288,8 @@ def main_11(args):
     START_DATETIME = UTIL.local_datetime_str_iso8601()
     print(f"main_11 Start: {START_DATETIME}")
     #512000 byte smallest file size.
-    #Groupers=size,512-hash,65536-hash 
+    #Groupers=size,512-hash,65536-hash
+    
     time_start = time.perf_counter()
     
     #json_out_path = args["json_out_path"]
@@ -423,9 +299,9 @@ def main_11(args):
     
     DIRS = CDATA.DIRS
     
-    dirs = ["/home/genel"] # 125650 items, totalling 52,5 GiB (56.358.510.573 bytes)
+    #dirs = ["/home/genel"] # 125650 items, totalling 52,5 GiB (56.358.510.573 bytes)
     #dirs = ["/media/genel/Bare-Data/"] # 34735 items, totalling 67,6 GiB (72.553.152.052 bytes)
-    #dirs = ["/media/genel/9A4277A5427784B3/"] # 513816 items, totalling 88,4 GiB (94.866.674.987 bytes)
+    dirs = ["/media/genel/9A4277A5427784B3/"] # 513816 items, totalling 88,4 GiB (94.866.674.987 bytes)
     
     #dirs = DIRS["dirs_20"]
     
@@ -438,7 +314,8 @@ def main_11(args):
     #SMALLEST_FSIZE = 128 * KB
     SMALLEST_FSIZE = 500 * KB
     
-    # TODO(armagan): Change Smallest_fsize. 64KB?
+    # TODO(armagans): Change Smallest_fsize. 64KB? -> It is too slow for scanning
+    # hundreds of thousands of files.
     
     # Try: (256Byte, 2KB, 128KB)
     
@@ -446,12 +323,14 @@ def main_11(args):
     
     
     # Try only 128 bytes for Win10. Check hot and cold speed with that config.
+    
+    # Try (time) 256B,2K,64K,256K on Cold Win10 with 500K smallest.
     byte_idx_pairs = [ 
                         (0, 256 * BYTE) \
                         ,(0, 2 * KB) \
                         ,(0, 64 * KB) \
-                        #,(0, 1 * MB) \
-                    ]
+                        ,(0, 256 * KB) \
+                     ]
     #
     #Win10; time (second)": 1014.4773, "Hash byte idx pairs": [[0, 256], [0, 2048], [0, 1048576]]
     
@@ -527,30 +406,9 @@ def main_12(args):
 
 if __name__ == "__main__":
 #(
-    #main_1(dict())
-    
-    #main_2(dict())
-    
-    #main_3(dict())
-    
-    #main_4(dict())
-    
-    #main_5(dict())
-    
-    #main_6(dict())
-    
-    #main_7(dict())
-    
-    #main_8(dict())
-    
-    #main_9(dict())
-    
-    #main_10(dict())
     
     #{"json_out_path": ""}
     main_11( dict() )
-    
-    #main_12(dict())
     
 #)
 

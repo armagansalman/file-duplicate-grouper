@@ -76,8 +76,9 @@ def list_of_two_tuples_str(lot, lot_descriptor):
 #)
 
 
-def get_local_file_size(path: CT.t_Str, opt: CT.t_Any):
+def get_local_file_size(path: CT.t_Str, options: CT.t_Any) -> CT.t_Int:
 #(
+    # TODO(armagans): Decide if options can be used inside the function.
     return os.path.getsize(path)
 #)
 
@@ -185,7 +186,7 @@ def key_group_pairs_to_csv_data(pairs, info: CT.t_Dict):
     #(
         for elm in group:
         #(
-            line_data = ["[GROUP-FILE-ELEMENT]"]
+            line_data = ["[GID-FID-PATH]"]
             
             line_data.extend( [str(grp_idx), str(file_idx), str(elm)] )
             
@@ -226,6 +227,7 @@ def write_csv(rows, filepath, _encoding="utf8", mode="w"): # Rearrange param ord
         csvwriter.writerow([ "[CSV INFO]", "Encoding:", _encoding ])
         csvwriter.writerow([ "[CSV INFO]", "Delimiter:", DELIMITER ])
         csvwriter.writerow([ "[CSV INFO]", "Quotechar:", QUOTECHAR ])
+        csvwriter.writerow([ "[CSV INFO]", "[GID-FID-PATH] = Group Id, File Id, File Path" ])
         
         csvwriter.writerows(rows)
         #csvwriter.writerow(['Spam'] * 5 + ['Baked Beans'])

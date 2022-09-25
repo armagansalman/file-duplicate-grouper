@@ -92,10 +92,11 @@ def get_local_file_bytes(obj: OT.t_OpaqueObj, get_file_path: OT.t_FnGetObjPath, 
 #)
 
 
-def get_multi_obj_sizes(obj_iter: OT.t_ObjIter, get_obj_size: OT.t_FnGetObjSize):
+def get_multi_obj_sizes(obj_iter: OT.t_ObjIter, get_obj_size: OT.t_FnGetObjSize,\
+                        opts: OT.t_Option):
 #(
     
-    return map( lambda x: (x, get_obj_size(x)) , obj_iter )
+    return map( lambda x: (x, get_obj_size(x, opts)) , obj_iter )
     
     """
     obj_sizes = []
@@ -112,13 +113,15 @@ def get_multi_obj_sizes(obj_iter: OT.t_ObjIter, get_obj_size: OT.t_FnGetObjSize)
 #)
 
 
-def get_fsizes_from_given_dirs(obj_iter: OT.t_ObjIter, get_path_from_obj: OT.t_FnGetObjPath):
+def get_fsizes_from_given_dirs(obj_iter: OT.t_ObjIter, \
+                                get_path_from_obj: OT.t_FnGetObjPath, \
+                                opts: OT.t_Option):
 #(
     #selected_dirs = OpHlp.ignore_redundant_subdirs(obj_iter, get_path_from_obj)
     
     fpaths = collect_all_file_paths(obj_iter, get_path_from_obj)
     
-    return get_multi_obj_sizes(fpaths, UTIL.get_local_file_size)
+    return get_multi_obj_sizes(fpaths, UTIL.get_local_file_size, opts)
 #)
 
 

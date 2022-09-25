@@ -1,22 +1,22 @@
 import os
 
-from common_types import *
-from user_types import *
+import common_types as CT
+#from user_types import *
 
 
-def get_absolute_path(path: t_Str):
+def get_absolute_path(path: CT.t_Str):
 #(
     return os.path.abspath(path)
 #)
 
 
-def is_file(path: t_Str):
+def is_file(path: CT.t_Str):
 #(
     return os.path.isfile(path)
 #)
 
 
-def ignore_redundant_subdirs(dirs: t_List[t_Str]):
+def ignore_redundant_subdirs(dirs: CT.t_Iter[CT.t_Str]):
     """ If a dir D_1 is a descendant of a dir D_2, don't include D_1 as
         it will be included with recursive search of D_2. 
         WARNING: If a given path is a file, it will also be ignored.
@@ -50,7 +50,7 @@ def ignore_redundant_subdirs(dirs: t_List[t_Str]):
 #)
 
 
-def get_fpaths_recursively(PATH: t_Str):
+def get_fpaths_recursively(PATH: CT.t_Str):
 #(
     rec_files: list = []
     # TODO(armaganslmn): ??? Error handling.
@@ -84,11 +84,11 @@ def get_fpaths_recursively(PATH: t_Str):
 #)
 
 
-def get_fpaths_from_path_iter(paths_iter: t_List[t_Path]):
+def get_fpaths_from_path_iter(paths_iter: CT.t_List[CT.t_Str]):
 #(
-    if type(paths_iter[0]) != t_Path or type(paths_iter[-1]) != t_Path:
+    if type(paths_iter[0]) != CT.t_Str or type(paths_iter[-1]) != CT.t_Str:
     #(
-        raise Exception("A list of t_Path must be given.")
+        raise Exception("A list of CT.t_Str must be given.")
     #)
     
     file_paths: list = []
@@ -99,14 +99,15 @@ def get_fpaths_from_path_iter(paths_iter: t_List[t_Path]):
     # TODO(armaganslmn): Handle if input is file.
     # TODO(armaganslmn): ??? Error handling.
     
-    path_strings = map(lambda x: x.path_str , paths_iter)
+    #path_strings = map(lambda x: x.path_str , paths_iter)
+    path_strings = paths_iter
     
     for string in path_strings:
     #(
         file_paths.extend( get_fpaths_recursively(string) )
     #)
     
-    return map(lambda x: PathData(x) , file_paths)
+    return file_paths
 #)
 
 
