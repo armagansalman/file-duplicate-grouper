@@ -11,6 +11,8 @@ import util as UTIL
 def ignore_redundant_subdirs(obj_iter: OT.t_ObjIter, \
                                 get_path_from_obj: OT.t_FnGetObjPath):
 #(
+    # TODO(armagans): Don't lose objects. Return values should be opaque objects,
+    # not path strings.
     paths = map(get_path_from_obj, obj_iter)
     
     return PFuncs.ignore_redundant_subdirs(paths)

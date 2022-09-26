@@ -264,23 +264,6 @@ def filter_and_multiple_hash(obj_iter, SMALLEST_FSIZE, BYTE_IDX_PAIRS):
 #)
 
 
-
-def filter_and_triple_hash(obj_iter, SMALLEST_FSIZE):
-#(
-    BYTE = 1
-    KB = 1024
-    MB = 1024 * KB
-    
-    byte_idx_pairs = [ 
-                        (0, 512 * BYTE) \
-                        ,(0, 64 * KB) \
-                        , (0, 1 * MB) \
-                    ]
-    
-    return filter_and_multiple_hash(obj_iter, SMALLEST_FSIZE, byte_idx_pairs)
-#)
-
-
 def main_11(args):
 #(
     import time
@@ -299,9 +282,9 @@ def main_11(args):
     
     DIRS = CDATA.DIRS
     
-    #dirs = ["/home/genel"] # 125650 items, totalling 52,5 GiB (56.358.510.573 bytes)
+    dirs = ["/home/genel"] # 125650 items, totalling 52,5 GiB (56.358.510.573 bytes)
     #dirs = ["/media/genel/Bare-Data/"] # 34735 items, totalling 67,6 GiB (72.553.152.052 bytes)
-    dirs = ["/media/genel/9A4277A5427784B3/"] # 513816 items, totalling 88,4 GiB (94.866.674.987 bytes)
+    #dirs = ["/media/genel/9A4277A5427784B3/"] # 513816 items, totalling 88,4 GiB (94.866.674.987 bytes)
     
     #dirs = DIRS["dirs_20"]
     
@@ -325,13 +308,17 @@ def main_11(args):
     # Try only 128 bytes for Win10. Check hot and cold speed with that config.
     
     # Try (time) 256B,2K,64K,256K on Cold Win10 with 500K smallest.
+    
+    # Try (time) 256B,2K,32K,256K on Cold Win10 with 500K smallest.
+    
+    # Current best: [(0,256), (0,2K), (0,64K), (0,384K)]
     byte_idx_pairs = [ 
                         (0, 256 * BYTE) \
                         ,(0, 2 * KB) \
                         ,(0, 64 * KB) \
-                        ,(0, 256 * KB) \
+                        ,(0, 384 * KB) \
                      ]
-    #
+    # # 384 = 256 + 128
     #Win10; time (second)": 1014.4773, "Hash byte idx pairs": [[0, 256], [0, 2048], [0, 1048576]]
     
     
@@ -363,44 +350,17 @@ def main_11(args):
     info["Hash byte idx pairs"] = byte_idx_pairs
     
     DATETIME_BEFORE_JSON_WRITE = UTIL.local_datetime_str_iso8601()
-    info["DATETIME_BEFORE_JSON_WRITE"] = DATETIME_BEFORE_JSON_WRITE
+    info["DATETIME_BEFORE_OUTPUT_WRITE"] = DATETIME_BEFORE_JSON_WRITE
     
     jsndata["Info"] = info
     
     UTIL.write_json(jsndata, json_out_path)
     
-    csv_data = UTIL.key_group_pairs_to_csv_data(key_group_pairs, info)
+    csv_version = 1
+    csv_data = UTIL.key_group_pairs_to_csv_data(csv_version, key_group_pairs, info)
     UTIL.write_csv(csv_data, csv_out_path)
     
     print(f"main_11 End: {UTIL.local_datetime_str_iso8601()}")
-#)
-
-
-def main_12(args):
-#(
-    DIRS = CDATA.DIRS
-    
-    dirs = DIRS["dirs_20"]
-    
-    BYTE = 1
-    KB = 1024 * BYTE
-    SMALLEST_FSIZE = 512 * KB
-    
-    key_group_pairs = filter_and_triple_hash(dirs, SMALLEST_FSIZE)
-    
-    grp_idx = 0
-    fidx = 0
-    for key,grp in key_group_pairs:
-    #(
-        for elm in grp:
-        #(
-            print(f"(Group=({grp_idx}), File=({fidx})), ({elm})")
-            fidx += 1
-        #)
-        print()
-        
-        grp_idx += 1
-    #)
 #)
 
 

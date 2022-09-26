@@ -160,7 +160,7 @@ def key_group_pairs_to_json_data(pairs):
 #)
 
 
-def key_group_pairs_to_csv_data(pairs, info: CT.t_Dict):
+def key_group_pairs_to_csv_data_v1(pairs, info: CT.t_Dict):
 #(
     # TODO(armagan): Add info part.
     # [GROUP-FILE-ELEMENT] ;0 ;1 ;"/home/documents/f1"
@@ -170,7 +170,14 @@ def key_group_pairs_to_csv_data(pairs, info: CT.t_Dict):
     # [INFO] ;"End time (iso-8601):" ;"2022-09-17T22:13"
     # [INFO] ;"Grouper functions:" ;"500 KB (smallest fsize), sha512: 512 Byte, 4 KB, 1 MB"
     
+    CSV_DATA_VERSION = 1
+    
     csv_data = []
+    
+    csv_data.append([ "[ROW TYPE INFO]", "[GID-FID-PATH]", "Group Id, File Id, File Path" ])
+    csv_data.append([ "[ROW TYPE INFO]", "[CSV DATA VERSION]", "A hashable value which refers to the specification of a csv output data format." ])
+    
+    csv_data.append([ "[CSV DATA VERSION]", CSV_DATA_VERSION ])
     
     for key, val in info.items():
     #(
@@ -194,11 +201,30 @@ def key_group_pairs_to_csv_data(pairs, info: CT.t_Dict):
             
             file_idx += 1
         #)
-        
+        csv_data.append( ["[SEPARATOR]"] ) # Add separator after every group.
         
         grp_idx += 1
     #)
     return csv_data
+#)
+
+
+def key_group_pairs_to_csv_data(csv_version: CT.t_Hashable, pairs, info: CT.t_Dict):
+#(
+    version_to_function = {
+                            1: key_group_pairs_to_csv_data_v1 \
+                        }
+    #
+    
+    DEFAULT_VERSION_KEY = 1
+    csv_data_func = version_to_function[DEFAULT_VERSION_KEY]
+    
+    if csv_version in version_to_function:
+    #(
+        csv_data_func = version_to_function[csv_version]
+    #)
+    
+    return csv_data_func(pairs, info)
 #)
 
 
@@ -224,10 +250,9 @@ def write_csv(rows, filepath, _encoding="utf8", mode="w"): # Rearrange param ord
         csvwriter = csv.writer(csvfile, delimiter=DELIMITER,
                                 quotechar=QUOTECHAR, quoting=csv.QUOTE_MINIMAL)
         #
-        csvwriter.writerow([ "[CSV INFO]", "Encoding:", _encoding ])
-        csvwriter.writerow([ "[CSV INFO]", "Delimiter:", DELIMITER ])
-        csvwriter.writerow([ "[CSV INFO]", "Quotechar:", QUOTECHAR ])
-        csvwriter.writerow([ "[CSV INFO]", "[GID-FID-PATH] = Group Id, File Id, File Path" ])
+        csvwriter.writerow([ "[CSV INFO]", "Encoding", _encoding ])
+        csvwriter.writerow([ "[CSV INFO]", "Delimiter", DELIMITER ])
+        csvwriter.writerow([ "[CSV INFO]", "Quotechar", QUOTECHAR ])
         
         csvwriter.writerows(rows)
         #csvwriter.writerow(['Spam'] * 5 + ['Baked Beans'])
