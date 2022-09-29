@@ -18,6 +18,14 @@ def local_datetime_str_iso8601():
 #)
 
 
+def map_multi_func(func_list: CT.t_List[CT.t_Callable] \
+                    , obj_iter: CT.t_Iter):
+#(
+    # TODO(armagans): Use this function where applicable.
+    return map(lambda obj: map( lambda func: func(obj) , func_list ) , obj_iter)
+#)
+
+
 def pretty_dict_str(dct, dict_descriptor):
 #(
     str_buffer = []
@@ -162,9 +170,8 @@ def key_group_pairs_to_json_data(pairs):
 
 def key_group_pairs_to_csv_data_v1(pairs, info: CT.t_Dict):
 #(
-    # TODO(armagan): Add info part.
-    # [GROUP-FILE-ELEMENT] ;0 ;1 ;"/home/documents/f1"
-    # [GROUP-FILE-ELEMENT] ;0 ;2 ;"/home/documents/f2"
+    # [GID-FID-PATH] ;0 ;1 ;"/home/documents/f1"
+    # [GID-FID-PATH] ;0 ;2 ;"/home/documents/f2"
     # [INFO] ;"Start time (iso-8601):" ;"2022-09-17T22:12"
     # [INFO] ;"Directories:" ;"/dir1" ;"/dir2" ;"/dir3"
     # [INFO] ;"End time (iso-8601):" ;"2022-09-17T22:13"

@@ -2,10 +2,9 @@ import os
 from typing import List
 
 from common_types import *
-from user_types import *
 
 import path_functions as PFuncs
-import temporary_dir_data as Tdata
+import const_data as Tdata
 import mdl_traverser as Seeker
 
 DIRS = Tdata.DIRS

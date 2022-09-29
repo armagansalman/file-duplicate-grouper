@@ -18,7 +18,7 @@ from dataclasses import dataclass
 from typing import List as t_List
 
 
-import temporary_dir_data as Tdata
+import const_data as Tdata
 
 
 DIRS = Tdata.DIRS

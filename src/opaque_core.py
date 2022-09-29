@@ -6,7 +6,13 @@ import util as UTIL
 import const_data as CDATA
 
 
-def get_multi_hashable_data(obj_iter: OT.t_ObjIter, getter: OT.t_FnGetHashable \
+BYTE = 1
+KB = 1024 * BYTE
+MB = 1024 * KB
+
+
+def get_multi_hashable_data(obj_iter: OT.t_ObjIter \
+                            , getter: OT.t_FnGetHashable \
                             , options: OT.t_OpaqueObj) \
                             -> CT.t_HashableIter:
     """ Creates 2-tuples of object and its relevant hashable data.  """
@@ -15,8 +21,10 @@ def get_multi_hashable_data(obj_iter: OT.t_ObjIter, getter: OT.t_FnGetHashable \
 #)
 
 
-def group_objects(obj_iter: OT.t_ObjIter, get_obj_hashable: OT.t_FnGetHashable, \
-                    options:CT.t_Any) -> OT.t_HashToSetDict:
+def group_objects(obj_iter: OT.t_ObjIter \
+                    , get_obj_hashable: OT.t_FnGetHashable \
+                    , options: CT.t_Any) \
+                    -> OT.t_HashToSetDict:
 #(
     hsh_to_objs: OT.t_HashToSetDict = dict()
     
@@ -44,21 +52,18 @@ def group_objects(obj_iter: OT.t_ObjIter, get_obj_hashable: OT.t_FnGetHashable, 
 #)
 
 
-def group_objs_by_fsize(obj_iter: OT.t_ObjIter, get_obj_size: OT.t_FnGetHashable):
+def group_objs_by_fsize(obj_iter: OT.t_ObjIter \
+                        , get_obj_size: OT.t_FnGetHashable):
 #(
     return group_objects(obj_iter, get_obj_size, None)
 #)
 
 
-def get_multi_obj_bytes(obj_iter: OT.t_ObjIter, get_obj_bytes: OT.t_FnGetObjBytes, \
-                        start_idx: OT.t_StartIdx, end_idx: OT.t_EndIdx):
+def get_multi_obj_bytes(obj_iter: OT.t_ObjIter \
+                        , get_obj_bytes: OT.t_FnGetObjBytes \
+                        , start_idx: OT.t_StartIdx, end_idx: OT.t_EndIdx):
 #(
-    # TODO(armagan): Make this a generator for memory efficiency.
-    for obj in obj_iter:
-    #(
-        received_bytes = get_obj_bytes(obj, start_idx, end_idx)
-        yield ( obj, received_bytes )
-    #)
+    map( lambda x: (x, get_obj_bytes(x, start_idx, end_idx)) , obj_iter )
 #)
 
 
@@ -290,9 +295,7 @@ def main_11(args):
     
     #print(f"Dirs: {dirs}")
     
-    BYTE = 1
-    KB = 1024 * BYTE
-    MB = 1024 * KB
+    
     
     #SMALLEST_FSIZE = 128 * KB
     SMALLEST_FSIZE = 500 * KB
