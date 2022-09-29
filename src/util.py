@@ -177,7 +177,7 @@ def key_group_pairs_to_csv_data_v1(pairs, info: CT.t_Dict):
     csv_data.append([ "[ROW TYPE INFO]", "[GID-FID-PATH]", "Group Id, File Id, File Path" ])
     csv_data.append([ "[ROW TYPE INFO]", "[CSV DATA VERSION]", "A hashable value which refers to the specification of a csv output data format." ])
     
-    csv_data.append([ "[CSV DATA VERSION]", CSV_DATA_VERSION ])
+    csv_data.append([ "[CSV DATA VERSION]", str(CSV_DATA_VERSION) ])
     
     for key, val in info.items():
     #(
@@ -211,9 +211,19 @@ def key_group_pairs_to_csv_data_v1(pairs, info: CT.t_Dict):
 
 def key_group_pairs_to_csv_data(csv_version: CT.t_Hashable, pairs, info: CT.t_Dict):
 #(
-    version_to_function = {
-                            1: key_group_pairs_to_csv_data_v1 \
-                        }
+    """ Makes a list of lists from the results of a duplicate scan.
+        csv_version parameter specifies the format of the result value.
+            There must a be unique function to implement specifications for every 
+            csv_version.
+        pairs parameter holds key, group pairs of duplicate results.
+        info parameter holds any info related to duplicate scan that returned pairs
+        as a result.
+    """
+    
+    version_to_function: CT.t_Dict[CT.t_Hashable, CT.t_Any] = \
+        {
+            1: key_group_pairs_to_csv_data_v1 \
+        }
     #
     
     DEFAULT_VERSION_KEY = 1
@@ -239,7 +249,10 @@ def write_json(data, fpath, mode="w"):
 
 def write_csv(rows, filepath, _encoding="utf8", mode="w"): # Rearrange param order.
 #(
-    # TODO(armagan): Complete. (Separator (;), quote ("))
+    """ Writes a list of lists to a csv file.
+        Every element of inner lists must be a string.
+    """
+    
     import csv
     
     DELIMITER = ';'
@@ -255,10 +268,6 @@ def write_csv(rows, filepath, _encoding="utf8", mode="w"): # Rearrange param ord
         csvwriter.writerow([ "[CSV INFO]", "Quotechar", QUOTECHAR ])
         
         csvwriter.writerows(rows)
-        #csvwriter.writerow(['Spam'] * 5 + ['Baked Beans'])
-        #csvwriter.writerow(['Spam', 'Lovely Spam', 'Wonderful Spam'])
     #)
 #)
-
-
 
