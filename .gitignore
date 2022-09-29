@@ -1,4 +1,6 @@
 temporary_dir_data.py
+const_data.py
+private_*
 
 *.csv
 *.json
