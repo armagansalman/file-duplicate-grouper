@@ -3,12 +3,13 @@ import opaque_user_types as OT
 
 import opaque_helper_functions as OpHlp
 import util as UTIL
-import const_data as CDATA
+import private_data as CDATA
 
+import constants as CONST
 
-BYTE = 1
-KB = 1024 * BYTE
-MB = 1024 * KB
+BYTE = CONST.BYTE
+KB = CONST.KB
+MB = CONST.MB
 
 
 def get_multi_hashable_data(obj_iter: OT.t_ObjIter \
@@ -285,50 +286,16 @@ def main_11(args):
     json_out_path = f"op-core.main-11.{UTIL.local_datetime_str_iso8601()}.json"
     csv_out_path = f"op-core.main-11.{UTIL.local_datetime_str_iso8601()}.csv"
     
-    DIRS = CDATA.DIRS
     
-    dirs = ["/home/genel"] # 125650 items, totalling 52,5 GiB (56.358.510.573 bytes)
-    #dirs = ["/media/genel/Bare-Data/"] # 34735 items, totalling 67,6 GiB (72.553.152.052 bytes)
-    #dirs = ["/media/genel/9A4277A5427784B3/"] # 513816 items, totalling 88,4 GiB (94.866.674.987 bytes)
-    
-    #dirs = DIRS["dirs_20"]
-    
-    #print(f"Dirs: {dirs}")
-    
-    
-    
-    #SMALLEST_FSIZE = 128 * KB
-    SMALLEST_FSIZE = 500 * KB
-    
-    # TODO(armagans): Change Smallest_fsize. 64KB? -> It is too slow for scanning
-    # hundreds of thousands of files.
-    
-    # Try: (256Byte, 2KB, 128KB)
-    
-    # (256 Byte, 2 KB, 64 KB, 1 MB) seems a good balance for (512 KB smallest) hash byte index intervals.
-    
-    
-    # Try only 128 bytes for Win10. Check hot and cold speed with that config.
-    
-    # Try (time) 256B,2K,64K,256K on Cold Win10 with 500K smallest.
-    
-    # Try (time) 256B,2K,32K,256K on Cold Win10 with 500K smallest.
+    dirs = args["dirs"]
+    SMALLEST_FSIZE = args["SMALLEST_FSIZE"]
+    byte_idx_pairs = args["byte_idx_pairs"]
     
     # Current best: [(0,256), (0,2K), (0,64K), (0,384K)]
-    byte_idx_pairs = [ 
-                        (0, 256 * BYTE) \
-                        ,(0, 2 * KB) \
-                        ,(0, 64 * KB) \
-                        ,(0, 384 * KB) \
-                     ]
-    # # 384 = 256 + 128
+    
     #Win10; time (second)": 1014.4773, "Hash byte idx pairs": [[0, 256], [0, 2048], [0, 1048576]]
     
-    
     key_group_pairs = filter_and_multiple_hash(dirs, SMALLEST_FSIZE, byte_idx_pairs)
-    
-    #print(f"main_11 csv End: {UTIL.local_datetime_str_iso8601()}")
-    #exit()
     
     time_end = time.perf_counter()
     
@@ -364,14 +331,36 @@ def main_11(args):
     UTIL.write_csv(csv_data, csv_out_path)
     
     print(f"main_11 End: {UTIL.local_datetime_str_iso8601()}")
+    
+    return key_group_pairs
 #)
 
 
 if __name__ == "__main__":
 #(
+    DIRS = CDATA.DIRS
+    
+    dirs = ["/home/genel"] # 125650 items, totalling 52,5 GiB (56.358.510.573 bytes)
+    #dirs = ["/media/genel/Bare-Data/"] # 34735 items, totalling 67,6 GiB (72.553.152.052 bytes)
+    #dirs = ["/media/genel/9A4277A5427784B3/"] # 513816 items, totalling 88,4 GiB (94.866.674.987 bytes)
+    
+    #dirs = DIRS["dirs_20"]
+    
+    SMALLEST_FSIZE = 500 * KB
+    
+    byte_idx_pairs = [ 
+                        (0, 256 * BYTE) \
+                        ,(0, 2 * KB) \
+                        ,(0, 64 * KB) \
+                        ,(0, 384 * KB) \
+                     ]
+    #
     
     #{"json_out_path": ""}
-    main_11( dict() )
+    params = {"dirs": dirs , "SMALLEST_FSIZE": SMALLEST_FSIZE \
+        , "byte_idx_pairs": byte_idx_pairs}
+    
+    main_11( params )
     
 #)
 

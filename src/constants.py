@@ -1,0 +1,3 @@
+BYTE = 1
+KB = 1024 * BYTE
+MB = 1024 * KB
