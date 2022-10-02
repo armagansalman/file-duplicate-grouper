@@ -7,6 +7,7 @@ private_*
 *.txt
 *.bak
 *.7z
+*.out
 
 __pycache__/
 local/

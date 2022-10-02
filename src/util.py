@@ -5,6 +5,16 @@ import json as JSON
 
 import common_types as CT
 
+CSV_DATA_ROW_TYPES = \
+    {
+         "type.1": "[CSV INFO]" \
+        ,"type.2": "[ROW TYPE INFO]" \
+        ,"type.3": "[CSV DATA VERSION]" \
+        ,"type.4": "[SCAN INFO]" \
+        ,"type.5": "[GID-FID-PATH]" \
+        ,"type.6": "[SEPARATOR]" \
+    }
+
 
 def local_datetime_str_iso8601():
 #(
@@ -183,12 +193,14 @@ def key_group_pairs_to_csv_data_v1(pairs, info: CT.t_Dict):
     
     csv_data.append([ "[ROW TYPE INFO]", "[GID-FID-PATH]", "Group Id, File Id, File Path" ])
     csv_data.append([ "[ROW TYPE INFO]", "[CSV DATA VERSION]", "A hashable value which refers to the specification of a csv output data format." ])
+    csv_data.append([ "[ROW TYPE INFO]", "[SCAN INFO]", "Some info about that particular scan. Time, given dirs, hash info etc." ])
+    csv_data.append([ "[ROW TYPE INFO]", "[SEPARATOR]", "Just a separator line to easily see groups when csv file is opened in an editor." ])
     
     csv_data.append([ "[CSV DATA VERSION]", str(CSV_DATA_VERSION) ])
     
     for key, val in info.items():
     #(
-        info_line = ["[INFO]", key, val]
+        info_line = ["[SCAN INFO]", key, val]
         csv_data.append( info_line )
     #)
     
@@ -213,6 +225,22 @@ def key_group_pairs_to_csv_data_v1(pairs, info: CT.t_Dict):
         grp_idx += 1
     #)
     return csv_data
+#)
+
+
+def load_csv_data_v1(csv_file_):
+#(
+    """ Reads csv output file version 1 and returns the data as a dict.
+        
+        'key_group_pairs' is a list of lists. Every group holds paths to 
+        potentially same files.
+        
+        'scan_info' is a dictionary that holds various information about the scan.
+        
+    """
+    CSV_DATA_VERSION = 1
+    
+    # TODO(armagans): Complete this function.
 #)
 
 

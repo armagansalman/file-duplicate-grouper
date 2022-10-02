@@ -95,29 +95,15 @@ def get_local_file_bytes(obj: OT.t_OpaqueObj, get_file_path: OT.t_FnGetObjPath, 
 
 
 def get_multi_obj_sizes(obj_iter: OT.t_ObjIter, get_obj_size: OT.t_FnGetObjSize,\
-                        opts: OT.t_Option):
+                        opts: OT.t_Arg):
 #(
-    
     return map( lambda x: (x, get_obj_size(x, opts)) , obj_iter )
-    
-    """
-    obj_sizes = []
-    
-    for obj in obj_iter:
-    #(
-        sz = get_obj_size(obj)
-        
-        obj_sizes.append( (obj, sz) )
-    #)
-    
-    return obj_sizes
-    """
 #)
 
 
 def get_fsizes_from_given_dirs(obj_iter: OT.t_ObjIter, \
                                 get_path_from_obj: OT.t_FnGetObjPath, \
-                                opts: OT.t_Option):
+                                opts: OT.t_Arg):
 #(
     #selected_dirs = OpHlp.ignore_redundant_subdirs(obj_iter, get_path_from_obj)
     

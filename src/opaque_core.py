@@ -33,7 +33,7 @@ def group_objects(obj_iter: OT.t_ObjIter \
     #(
         hsh = get_obj_hashable(obj, options)
         
-        same_hash_group = hsh_to_objs.get(hsh, None)
+        same_hash_group: CT.t_Set = hsh_to_objs.get(hsh, None)
         
         if same_hash_group == None:
         #(
@@ -64,6 +64,9 @@ def get_multi_obj_bytes(obj_iter: OT.t_ObjIter \
                         , get_obj_bytes: OT.t_FnGetObjBytes \
                         , start_idx: OT.t_StartIdx, end_idx: OT.t_EndIdx):
 #(
+    # TODO(armagans): Use function, opt_arg pair. Retrieve params from opt_arg,
+    # don't take them as parameters to this function.
+    
     map( lambda x: (x, get_obj_bytes(x, start_idx, end_idx)) , obj_iter )
 #)
 
@@ -105,14 +108,7 @@ def ignore_unique_groups(obj_iter: OT.t_ObjIter, get_key: OT.t_FnGetKey, \
 
 def ignore_zero_len(obj_iter: OT.t_ObjIter, get_size: OT.t_FnGetObjSize):
 #(
-    for obj in obj_iter:
-    #(
-        sz = get_size(obj, None)
-        if sz < 1:
-            continue
-        else:
-            yield obj
-    #)
+    return filter(lambda elm: get_size(elm, None) >= 1 , obj_iter)
 #)
 
 
@@ -121,7 +117,7 @@ def ignore_zero_len(obj_iter: OT.t_ObjIter, get_size: OT.t_FnGetObjSize):
 
 
 def apply_grouper_funcs_dfs(obj_iter, getter_and_param_list: \
-                            CT.t_List[OT.FnHashableParamPair], FN_IDX: CT.t_Int) \
+                            CT.t_List[OT.FnHashableArgPair], FN_IDX: CT.t_Int) \
                             :
                             #-> CT.t_List[OT.t_KeyGroupPair]:
 #(
@@ -139,7 +135,7 @@ def apply_grouper_funcs_dfs(obj_iter, getter_and_param_list: \
     
     fn_and_param = getter_and_param_list[FN_IDX]
     getter: OT.t_FnGetHashable = fn_and_param.function
-    opt_param: CT.t_Any = fn_and_param.opt_param
+    opt_param: CT.t_Any = fn_and_param.opt_arg
     
     mapping = group_objects(obj_iter, getter, opt_param)
     
@@ -169,7 +165,7 @@ def apply_grouper_funcs_dfs(obj_iter, getter_and_param_list: \
 
 
 def apply_grouper_funcs(obj_iter, getter_and_param_list: \
-                        CT.t_List[OT.FnHashableParamPair]):
+                        CT.t_List[OT.FnHashableArgPair]):
 #(
     if len(getter_and_param_list) < 1: # No grouper to process.
     #(
@@ -226,7 +222,8 @@ def filter_and_apply_groupers(obj_iter, SMALLEST_FSIZE, GROUPERS):
 #(
     fpaths = OpHlp.collect_all_file_paths(obj_iter, lambda x: x)
     
-    PATHS = tuple(fpaths)
+    #PATHS = tuple(fpaths)
+    PATHS = fpaths
     
     nonsmall_files = filter(lambda elm: UTIL.get_local_file_size(elm, None) >= \
                             SMALLEST_FSIZE , PATHS)
@@ -240,7 +237,7 @@ def filter_and_apply_groupers(obj_iter, SMALLEST_FSIZE, GROUPERS):
 
 def filter_and_multiple_hash(obj_iter, SMALLEST_FSIZE, BYTE_IDX_PAIRS):
 #(
-    size_grpr = OT.FnHashableParamPair(UTIL.get_local_file_size, None)
+    size_grpr = OT.FnHashableArgPair(UTIL.get_local_file_size, None)
     
     
     def hash_getter(fpath, prm):
@@ -260,7 +257,7 @@ def filter_and_multiple_hash(obj_iter, SMALLEST_FSIZE, BYTE_IDX_PAIRS):
     hash_grprs = []
     for start, end in BYTE_IDX_PAIRS:
     #(
-        pair = OT.FnHashableParamPair(hash_getter, \
+        pair = OT.FnHashableArgPair(hash_getter, \
                                     {"start_offset": start , "end_offset": end})
         #
         hash_grprs.append(pair)
@@ -340,9 +337,9 @@ if __name__ == "__main__":
 #(
     DIRS = CDATA.DIRS
     
-    dirs = ["/home/genel"] # 125650 items, totalling 52,5 GiB (56.358.510.573 bytes)
+    #dirs = ["/home/genel"] # 125650 items, totalling 52,5 GiB (56.358.510.573 bytes)
     #dirs = ["/media/genel/Bare-Data/"] # 34735 items, totalling 67,6 GiB (72.553.152.052 bytes)
-    #dirs = ["/media/genel/9A4277A5427784B3/"] # 513816 items, totalling 88,4 GiB (94.866.674.987 bytes)
+    dirs = ["/media/genel/9A4277A5427784B3/"] # 513816 items, totalling 88,4 GiB (94.866.674.987 bytes)
     
     #dirs = DIRS["dirs_20"]
     
@@ -352,7 +349,7 @@ if __name__ == "__main__":
                         (0, 256 * BYTE) \
                         ,(0, 2 * KB) \
                         ,(0, 64 * KB) \
-                        ,(0, 384 * KB) \
+                        ,(64 * KB, 448 * KB) \
                      ]
     #
     
