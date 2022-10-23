@@ -1,8 +1,11 @@
+import logging
+
 import common_types as CT
 import opaque_user_types as OT
 
 import opaque_helper_functions as OpHlp
 import util as UTIL
+import maybe as Maybe
 import private_data as CDATA
 
 import constants as CONST
@@ -27,29 +30,46 @@ def group_objects(obj_iter: OT.t_ObjIter \
                     , options: CT.t_Any) \
                     -> OT.t_HashToSetDict:
 #(
-    hsh_to_objs: OT.t_HashToSetDict = dict()
-    
-    for obj in obj_iter:
-    #(
-        hsh = get_obj_hashable(obj, options)
-        
-        same_hash_group: CT.t_Set = hsh_to_objs.get(hsh, None)
-        
-        if same_hash_group == None:
-        #(
-            new_hashable_set = set()
-            new_hashable_set.add(obj)
-            
-            hsh_to_objs[hsh] = new_hashable_set
-        #)
-        else:
-        #(
-            same_hash_group.add(obj)
-        #)
-    #)
-    
-    return hsh_to_objs
-    
+	hsh_to_objs: OT.t_HashToSetDict = dict()
+
+	for obj in obj_iter:
+	#(
+		hsh = None
+		
+		try:
+		#(
+			hsh = get_obj_hashable(obj, options)
+		#)
+		except Err:
+		#(
+			msg = [ f"Can't get hash from object ~{str(obj)}~" \
+				, "It was skipped."
+				, f"Exception: {str(Err)}" \
+				, f"Function: {__name__}.group_objects" \
+				, "~~~" ]
+			#
+			
+			logging.error( '\n'.join(msg) )
+			
+			continue
+		#)
+		
+		same_hash_group: CT.t_Set = hsh_to_objs.get(hsh, None)
+		
+		if same_hash_group == None:
+		#(
+			new_hashable_set = set()
+			new_hashable_set.add(obj)
+			
+			hsh_to_objs[hsh] = new_hashable_set
+		#)
+		else:
+		#(
+			same_hash_group.add(obj)
+		#)
+	#)
+
+	return hsh_to_objs
 #)
 
 
@@ -280,8 +300,8 @@ def main_11(args):
     
     #json_out_path = args["json_out_path"]
     #milliseconds = round(time.time_ns() / 1000)
-    json_out_path = f"op-core.main-11.{UTIL.local_datetime_str_iso8601()}.json"
-    csv_out_path = f"op-core.main-11.{UTIL.local_datetime_str_iso8601()}.csv"
+    json_out_path = f"op-core_main-11_{UTIL.local_datetime_str_iso8601()}.json"
+    csv_out_path = f"op-core_main-11_{UTIL.local_datetime_str_iso8601()}.csv"
     
     
     dirs = args["dirs"]
@@ -327,7 +347,7 @@ def main_11(args):
     csv_data = UTIL.key_group_pairs_to_csv_data(csv_version, key_group_pairs, info)
     UTIL.write_csv(csv_data, csv_out_path)
     
-    print(f"main_11 End: {UTIL.local_datetime_str_iso8601()}")
+    print(f"main_11 End  : {UTIL.local_datetime_str_iso8601()}")
     
     return key_group_pairs
 #)

@@ -22,7 +22,7 @@ def local_datetime_str_iso8601():
     
     msec = round(time.time() % 1, 3)
     
-    iso_8601_str = f"{lt.tm_year}-{lt.tm_mon}-{lt.tm_mday}T{lt.tm_hour}:{lt.tm_min}:{lt.tm_sec}:{msec}"
+    iso_8601_str = f"{lt.tm_year}-{lt.tm_mon}-{lt.tm_mday}T{lt.tm_hour}-{lt.tm_min}-{lt.tm_sec}-{msec}"
     
     return iso_8601_str
 #)
