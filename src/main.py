@@ -47,7 +47,7 @@ if __name__ == "__main__":
 	params = {"dirs": search_dirs , "SMALLEST_FSIZE": SMALLEST_FSIZE \
 		, "byte_idx_pairs": byte_idx_pairs}
 
-	logging.info(f"File duplicate scan Start: " + UTIL.local_datetime_str_iso8601())
+	logging.info(f"File duplicate scan Started: " + UTIL.local_datetime_str_iso8601())
 
 	scan_groups = local_duplicate_scan(params)
 	
