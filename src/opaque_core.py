@@ -73,13 +73,6 @@ def group_objects(obj_iter: OT.t_ObjIter \
 #)
 
 
-def group_objs_by_fsize(obj_iter: OT.t_ObjIter \
-                        , get_obj_size: OT.t_FnGetHashable):
-#(
-    return group_objects(obj_iter, get_obj_size, None)
-#)
-
-
 def get_multi_obj_bytes(obj_iter: OT.t_ObjIter \
                         , get_obj_bytes: OT.t_FnGetObjBytes \
                         , start_idx: OT.t_StartIdx, end_idx: OT.t_EndIdx):
@@ -89,48 +82,6 @@ def get_multi_obj_bytes(obj_iter: OT.t_ObjIter \
     
     map( lambda x: (x, get_obj_bytes(x, start_idx, end_idx)) , obj_iter )
 #)
-
-
-def ignore_unique_groups(obj_iter: OT.t_ObjIter, get_key: OT.t_FnGetKey, \
-                    get_group: OT.t_FnGetValue):
-#(
-    DUPLICATE_THRESHOLD = 2
-    potential_dups: CT.t_List[CT.t_List] = [] # [[key1,group1], [key2,group2], ...]
-    
-    for obj in obj_iter:
-    #(
-        key, group = get_key(obj), get_group(obj)
-        
-        sz = 0
-        try:
-        #(
-            sz = len(group)
-        #)
-        except: # Group object might not have a len method.
-        #(
-            sz = len(list(group))
-        #)
-        
-        if sz < DUPLICATE_THRESHOLD: 
-        # A duplicate group always have at least DUPLICATE_THRESHOLD elements.
-        #(
-            continue # Ignore this key, group pair.
-        #)
-        else: # This group holds potential duplicates.
-        #(
-            potential_dups.append([key, group])
-        #)
-    #)
-    
-    return potential_dups
-#)
-
-
-def ignore_zero_len(obj_iter: OT.t_ObjIter, get_size: OT.t_FnGetObjSize):
-#(
-    return filter(lambda elm: get_size(elm, None) >= 1 , obj_iter)
-#)
-
 
 # TODO(armagan): Make a fn separate_unq_dups that returns unique key-group pairs
 # and potentially duplicate key-group pairs in a named tuple (collections.namedtuple).
@@ -203,41 +154,6 @@ def apply_grouper_funcs(obj_iter, getter_and_param_list: \
 #)
 
 
-def print_path_size_iter(paths_n_sizes):
-#(
-    for ix, elm in enumerate(paths_n_sizes):
-    #(
-        print(f"Path ({ix}): {elm[0]}")
-        print(f"Size: {elm[1]} bytes, {round(elm[1]/1024, 2)} Kb, {round(elm[1]/1024/1024, 2)} Mb")
-        print()
-    #)
-#)
-
-
-def print_uniques_by_size(args):
-#(
-    #dirs = ["/home/genel/Downloads/", "/home/genel/Documents/"]
-    
-    dirs = args["dirs"]
-    
-    fpaths = OpHlp.collect_all_file_paths(dirs, lambda x: x)
-    
-    size_groups = group_objs_by_fsize(fpaths, UTIL.get_local_file_size)
-    
-    print(f"Total key count: {len(size_groups)}")
-    
-    dict_str = UTIL.pretty_dict_str(size_groups, "File len bytes to paths")
-    
-    print(dict_str)
-    
-    uniques = ignore_unique_groups(size_groups.items(), lambda x: x[0], lambda x: x[1])
-    
-    lot_str = UTIL.list_of_two_tuples_str(uniques, "File size bytes, File paths")
-    
-    print(lot_str)
-#)
-
-
 def filter_and_apply_groupers(obj_iter, SMALLEST_FSIZE, GROUPERS):
 #(
     fpaths = OpHlp.collect_all_file_paths(obj_iter, lambda x: x)
@@ -293,13 +209,9 @@ def main_11(args):
     
     START_DATETIME = UTIL.local_datetime_str_iso8601()
     print(f"main_11 Start: {START_DATETIME}")
-    #512000 byte smallest file size.
-    #Groupers=size,512-hash,65536-hash
     
     time_start = time.perf_counter()
     
-    #json_out_path = args["json_out_path"]
-    #milliseconds = round(time.time_ns() / 1000)
     json_out_path = f"op-core_main-11_{UTIL.local_datetime_str_iso8601()}.json"
     csv_out_path = f"op-core_main-11_{UTIL.local_datetime_str_iso8601()}.csv"
     
@@ -307,10 +219,6 @@ def main_11(args):
     dirs = args["dirs"]
     SMALLEST_FSIZE = args["SMALLEST_FSIZE"]
     byte_idx_pairs = args["byte_idx_pairs"]
-    
-    # Current best: [(0,256), (0,2K), (0,64K), (0,384K)]
-    
-    #Win10; time (second)": 1014.4773, "Hash byte idx pairs": [[0, 256], [0, 2048], [0, 1048576]]
     
     key_group_pairs = filter_and_multiple_hash(dirs, SMALLEST_FSIZE, byte_idx_pairs)
     
@@ -322,10 +230,6 @@ def main_11(args):
     
     #objects = jsndata["groups"]
     total_time = time.perf_counter() - time_start
-    
-    
-    #grp_time = UTIL.second_to_minute_second_str(round(group_time_diff, 3))
-    #total_time = UTIL.second_to_minute_second_str(round(total_time, 3))
     
     info = dict()
     
@@ -355,29 +259,6 @@ def main_11(args):
 
 if __name__ == "__main__":
 #(
-    DIRS = CDATA.DIRS
-    
-    #dirs = ["/home/genel"] # 125650 items, totalling 52,5 GiB (56.358.510.573 bytes)
-    #dirs = ["/media/genel/Bare-Data/"] # 34735 items, totalling 67,6 GiB (72.553.152.052 bytes)
-    dirs = ["/media/genel/9A4277A5427784B3/"] # 513816 items, totalling 88,4 GiB (94.866.674.987 bytes)
-    
-    #dirs = DIRS["dirs_20"]
-    
-    SMALLEST_FSIZE = 500 * KB
-    
-    byte_idx_pairs = [ 
-                        (0, 256 * BYTE) \
-                        ,(0, 2 * KB) \
-                        ,(0, 64 * KB) \
-                        ,(64 * KB, 448 * KB) \
-                     ]
-    #
-    
-    #{"json_out_path": ""}
-    params = {"dirs": dirs , "SMALLEST_FSIZE": SMALLEST_FSIZE \
-        , "byte_idx_pairs": byte_idx_pairs}
-    
-    main_11( params )
-    
+	raise Exception("This module is not runnable.")
 #)
 

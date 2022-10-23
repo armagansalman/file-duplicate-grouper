@@ -43,7 +43,6 @@ if __name__ == "__main__":
 						,(64 * KB, 320 * KB) \
 					 ]
 	#
-
 	params = {"dirs": search_dirs , "SMALLEST_FSIZE": SMALLEST_FSIZE \
 		, "byte_idx_pairs": byte_idx_pairs}
 
