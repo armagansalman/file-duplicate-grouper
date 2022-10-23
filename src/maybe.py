@@ -1,7 +1,7 @@
 """
 
     ~~~ WHY ~~~
-To be able to represent nothing and separate it from something (useable values).
+To be able to represent nothing and separate it from something (usable values).
 
 """
 
@@ -45,13 +45,13 @@ class SomethingType():
 
 def make_nothing():
 #(
-    return tuple( [NothingType] )
+    return [NothingType]
 #)
 
 
 def make_something(thing):
 #(
-    return tuple( [SomethingType, thing] )
+    return [SomethingType, thing]
 #)
 
 
