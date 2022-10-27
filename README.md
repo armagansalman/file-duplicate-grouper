@@ -2,6 +2,10 @@
 Finds local file duplicates. It is not guaranteed that all files in a reported group are the same.
 
 ## Usage
+* For Linux (in command line): python3 main.py
+
+* For Windows (in command line): py main.py
+
 * In main.py, put directory paths in variable (list) 'search_dirs'.
 
 * 'MINIMUM_FSIZE' and 'MAXIMUM_FSIZE' can also be changed according to your needs. Use None for any of the FSIZE limits if you don't want to filter for that size.
