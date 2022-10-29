@@ -6,13 +6,15 @@ import common_types as CT
 
 
 def get_absolute_path(path: CT.t_Str):
-    # (
+    """docstr"""
+# (
     return os.path.abspath(path)
 # )
 
 
 def is_file(path: CT.t_Str):
-    # (
+    """docstr"""
+# (
     return os.path.isfile(path)
 # )
 
@@ -24,15 +26,17 @@ def ignore_redundant_subdirs(dirs: CT.t_Iter[CT.t_Str]):
     """
 # (
     dirs_tpl = tuple(dirs)
-    
+
     abs_paths = list(map(get_absolute_path, filter(os.path.isdir, dirs_tpl)))
 
     if len(abs_paths) < 1:
-    #(
-        logging.error(f"Can't get directory paths from given dirs: {str(dirs_tpl)}")
-        
-        raise Exception("Given paths are not directories. Check LOG_ file for details.")
-    #)
+        # (
+        logging.error(
+            f"Can't get directory paths from given dirs: {str(dirs_tpl)}")
+
+        raise Exception(
+            "Given paths are not directories. Check LOG_ file for details.")
+    # )
 
     abs_paths.sort()
 
@@ -61,7 +65,8 @@ def ignore_redundant_subdirs(dirs: CT.t_Iter[CT.t_Str]):
 
 
 def get_fpaths_recursively(PATH: CT.t_Str):
-    # (
+    """docstr"""
+# (
     rec_files: list = []
     # TODO(armaganslmn): ??? Error handling.
     #ap = os.path.abspath(PATH)
@@ -95,7 +100,8 @@ def get_fpaths_recursively(PATH: CT.t_Str):
 
 
 def get_fpaths_from_path_iter(paths_iter: CT.t_List[CT.t_Str]):
-    # (
+    """docstr"""
+# (
     if type(paths_iter[0]) != CT.t_Str or type(paths_iter[-1]) != CT.t_Str:
         # (
         raise Exception("A list of CT.t_Str must be given.")
@@ -122,7 +128,8 @@ def get_fpaths_from_path_iter(paths_iter: CT.t_List[CT.t_Str]):
 
 
 def test_ignore_redundant_subdirs_1():
-    # (
+    """docstr"""
+# (
     dirs = ["/home/genel/Desktop/TEMP/", "!abc", "/home/genel/Desktop/", "/home/genel/Desktop/TEMP/git-local/",
             "/home/genel/Documents/", "/home/genel/Documents/Programs/", "/home/genel/Documents/Programs/eclipse/"]
     #
@@ -141,14 +148,9 @@ def test_ignore_redundant_subdirs_1():
 # )
 
 
-def main_1(args):
-    # (
-    pass
-# )
-
-
 if __name__ == "__main__":
-    # (
+    """docstr"""
+# (
     # main_1(dict())
 
     test_ignore_redundant_subdirs_1()

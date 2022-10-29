@@ -23,18 +23,18 @@ def local_duplicate_scan(args):
 
 def scan(args):
     """docstr"""
-#(
+# (
     log_name = "LOG_duplicate-find_" + UTIL.local_datetime_str_iso8601() + ".txt"
 
     logging.basicConfig(filename=log_name, level=logging.INFO, filemode='a',
                         format='[ %(levelname)s ] | %(asctime)s | %(message)s')
     # '%(levelname)s ~ %(name)s ~ %(asctime)s ~ %(message)s' name is root by default.
-    
+
     logging.info(f"File duplicate scan Started: " +
                  UTIL.local_datetime_str_iso8601())
-    
+
     logging.info(f"Search Directories: " + str(args["dirs"]))
-    
+
     #
     duplicate_groups = local_duplicate_scan(args)
     #
@@ -42,15 +42,15 @@ def scan(args):
     logging.info(f"File duplicate scan Finished: " +
                  UTIL.local_datetime_str_iso8601())
     #
-    
+
     return duplicate_groups
-#)
+# )
 
 
 def main(args):
     """docstr"""
-#(
-    search_dirs = [ "/home/genel", "/home/genel/Documents/" ]
+# (
+    search_dirs = ["/home/genel", "/home/genel/Documents/"]
 
     #MINIMUM_FSIZE = 500 * KB
     MINIMUM_FSIZE = 1000 * KB
@@ -58,22 +58,24 @@ def main(args):
 
     # Each pair == (file_byte_start, file_byte_end)
     byte_idx_pairs = [
-        (0, 32 * BYTE) , (0, 256 * BYTE)# , (0, 2 * KB)# , (0, 16 * KB)# , (0, 256 * KB)
+        # , (0, 2 * KB)# , (0, 16 * KB)# , (0, 256 * KB)
+        (0, 32 * BYTE), (0, 256 * BYTE)
     ]
     #
-    
+
     scan_params = {"dirs": search_dirs, "FSIZE_MINMAX_PAIR": (MINIMUM_FSIZE, MAXIMUM_FSIZE),
-              "byte_idx_pairs": byte_idx_pairs}
+                   "byte_idx_pairs": byte_idx_pairs}
     #
-    
+
     scan(scan_params)
-#)
+# )
+
 
 if __name__ == "__main__":
     """docstr"""
 # (
     main_args = dict()
-    
+
     main(main_args)
 # )
 

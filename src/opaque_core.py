@@ -25,7 +25,8 @@ def get_multi_hashable_data(obj_iter: OT.t_ObjIter, getter: OT.t_FnGetHashable, 
 
 def group_objects(obj_iter: OT.t_ObjIter, get_obj_hashable: OT.t_FnGetHashable, options: CT.t_Any) \
         -> OT.t_HashToSetDict:
-    # (
+    """docstr"""
+# (
     hsh_to_objs: OT.t_HashToSetDict = dict()
 
     for obj in obj_iter:
@@ -38,10 +39,8 @@ def group_objects(obj_iter: OT.t_ObjIter, get_obj_hashable: OT.t_FnGetHashable, 
         # )
         except Exception as Err:
             # (
-            msg = [f"Can't get hash from object ~{str(obj)}~", "It was skipped." \
-                    , f"Exception: {str(Err)}" \
-                    , f"Function: {__name__}.group_objects" \
-                    , "~~~" ]
+            msg = [f"Can't get hash from object ~{str(obj)}~", "It was skipped.",
+                   f"Exception: {str(Err)}", f"Function: {__name__}.group_objects", "~~~"]
             #
 
             logging.error('\n'.join(msg))
@@ -69,7 +68,8 @@ def group_objects(obj_iter: OT.t_ObjIter, get_obj_hashable: OT.t_FnGetHashable, 
 
 
 def get_multi_obj_bytes(obj_iter: OT.t_ObjIter, get_obj_bytes: OT.t_FnGetObjBytes, start_idx: OT.t_StartIdx, end_idx: OT.t_EndIdx):
-    # (
+    """docstr"""
+# (
     # TODO(armagans): Use function, opt_arg pair. Retrieve params from opt_arg,
     # don't take them as parameters to this function.
 
@@ -83,7 +83,8 @@ def get_multi_obj_bytes(obj_iter: OT.t_ObjIter, get_obj_bytes: OT.t_FnGetObjByte
 def apply_grouper_funcs_dfs(obj_iter, getter_and_param_list:
                             CT.t_List[OT.FnHashableArgPair], FN_IDX: CT.t_Int):
     # -> CT.t_List[OT.t_KeyGroupPair]:
-    # (
+    """docstr"""
+# (
     FN_LIST_LEN = len(getter_and_param_list)
 
     if FN_IDX >= FN_LIST_LEN:
@@ -129,7 +130,8 @@ def apply_grouper_funcs_dfs(obj_iter, getter_and_param_list:
 
 def apply_grouper_funcs(obj_iter, getter_and_param_list:
                         CT.t_List[OT.FnHashableArgPair]):
-    # (
+    """docstr"""
+# (
     if len(getter_and_param_list) < 1:  # No grouper to process.
         # (
         return obj_iter
@@ -147,48 +149,52 @@ def apply_grouper_funcs(obj_iter, getter_and_param_list:
 
 
 def filter_and_apply_groupers(obj_iter, FSIZE_MINMAX_PAIR, GROUPERS):
-    # (
+    """docstr"""
+# (
     fpaths: CT.t_Iter = OpHlp.collect_all_file_paths(obj_iter, lambda x: x)
-    
+
     PATHS = tuple(fpaths)
-    
+
     if len(PATHS) < 2:
-        logging.error(f"Couldn't collect file paths. Does the user have read permissions for search paths?")
-    
+        logging.error(
+            f"Couldn't collect file paths. Does the user have read permissions for search paths?")
+
     logging.info(f"Collected, unfiltered file path count: {len(PATHS)}")
-    
+
     def size_filter(elm):
         """ Returns True if file object is between MINMAX limits. """
-    #(
+    # (
         SZ = None
         try:
-        #(
+            # (
             SZ = UTIL.get_local_file_size(elm, None)
-        #)
+        # )
         except Exception as Err:
-        #(
-            logging.error(f"Couldn't get size for: {str(elm)}. Error: {str(Err)}")
-            
+            # (
+            logging.error(
+                f"Couldn't get size for: {str(elm)}. Error: {str(Err)}")
+
             return False
-        #)
-        
+        # )
+
         MIN_LIMIT, MAX_LIMIT = FSIZE_MINMAX_PAIR
-        
+
         is_valid = True
-        
+
         is_valid = MIN_LIMIT <= SZ if (MIN_LIMIT is not None) else True
-        
-        is_valid = is_valid and (MAX_LIMIT >= SZ) if (MAX_LIMIT is not None) else is_valid
-        
+
+        is_valid = is_valid and (MAX_LIMIT >= SZ) if (
+            MAX_LIMIT is not None) else is_valid
+
         return is_valid
-    #)
-    
+    # )
+
     nonsmall_files = filter(size_filter, PATHS)
     #
     NS_FILES = tuple(nonsmall_files)
-    
+
     logging.info(f"Filtered file path count: {len(NS_FILES)}")
-    
+
     key_group_pairs = apply_grouper_funcs(NS_FILES, GROUPERS)
 
     return key_group_pairs
@@ -196,7 +202,8 @@ def filter_and_apply_groupers(obj_iter, FSIZE_MINMAX_PAIR, GROUPERS):
 
 
 def filter_and_multiple_hash(obj_iter, FSIZE_MINMAX_PAIR, BYTE_IDX_PAIRS):
-    # (
+    """docstr"""
+# (
     size_grpr = OT.FnHashableArgPair(UTIL.get_local_file_size, None)
 
     def hash_getter(fpath, prm):
@@ -227,7 +234,8 @@ def filter_and_multiple_hash(obj_iter, FSIZE_MINMAX_PAIR, BYTE_IDX_PAIRS):
 
 
 def main_11(args):
-    # (
+    """docstr"""
+# (
     import time
 
     START_DATETIME = UTIL.local_datetime_str_iso8601()
@@ -284,6 +292,7 @@ def main_11(args):
 
 
 if __name__ == "__main__":
-    # (
+    """docstr"""
+# (
     raise Exception("This module is not runnable.")
 # )

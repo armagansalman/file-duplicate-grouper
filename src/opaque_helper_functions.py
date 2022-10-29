@@ -70,7 +70,7 @@ def filter_for_files(paths: CT.t_Iter[CT.t_Str]):
 
 def collect_all_file_paths(obj_iter: OT.t_ObjIter,
                            get_dirpath_from_obj: OT.t_FnGetObjPath) \
-                           -> CT.t_Iter:
+        -> CT.t_Iter:
     # (
     dir_filelist_tuples = get_fpaths_from_path_iter(
         obj_iter, get_dirpath_from_obj)

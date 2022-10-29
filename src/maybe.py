@@ -4,10 +4,12 @@
 
 """
 
+
 class Maybe():
-#(
-        pass
-#)
+    # (
+    pass
+# )
+
 
 class NothingType(Maybe):
     # (
@@ -23,7 +25,7 @@ class SomethingType(Maybe):
 
 def make_nothing():
     # (
-    return (NothingType, ) # One element tuple.
+    return (NothingType, )  # One element tuple.
 # )
 
 
@@ -80,7 +82,7 @@ def main():
 
     assert (is_nothing("abc") == False)
     assert (is_something("abc") == False)
-    
+
     assert (is_nothing(s) == False)
 
     assert (is_nothing(n) == True)
